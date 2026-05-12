@@ -1,0 +1,620 @@
+Voici ma clé d'API ashtechpay: ak_83adbb920ef3efd424561f70d6b76e7bf0ed91cce302973a
+
+Introduction
+L'API Ashtech Pay permet à vos applications d'initier des paiements Mobile Money dans 16 pays africains, sans redirection. Elle gère automatiquement le routage entre les opérateurs et vous notifie du résultat via webhook.
+
+Sécurisé
+
+Chaque requête est authentifiée par clé API Bearer
+
+Temps réel
+
+Résultat envoyé instantanément sur votre webhook
+
+16 pays
+
+Toute l'Afrique francophone couverte
+
+URL de base
+
+https://ashtechpay.top
+v1
+Toutes les requêtes doivent être envoyées en HTTPS. Réponses JSON uniquement.
+
+Authentification
+Toutes les requêtes doivent inclure votre clé API dans l'en-tête HTTP Authorization.
+
+http
+Copier
+Authorization: Bearer ak_83adbb920ef3efd424561f70d6b76e7bf0ed91cce302973a
+⚠
+Utilisez votre clé API uniquement depuis votre serveur (Node.js, Python, PHP…). Ne l'incluez jamais dans du code côté navigateur ou application mobile.
+
+Exemple d'appel authentifié (Node.js)
+
+javascript
+
+const response = await fetch("https://ashtechpay.top/v1/collect", {
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer ak_83adbb920ef3efd424561f70d6b76e7bf0ed91cce302973a",
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({ /* ... */ })
+});
+
+
+Pays et opérateurs
+GET
+/v1/countries
+Retourne la liste complète des pays actifs et leurs opérateurs Mobile Money disponibles. Utilisez cet endpoint pour peupler dynamiquement votre interface de paiement.
+
+Requête
+
+javascript
+
+fetch("https://ashtechpay.top/v1/countries", {
+  headers: {
+    "Authorization": "Bearer ak_83adbb920ef3efd424561f70d6b76e7bf0ed91cce302973a"
+  }
+})
+
+Réponse
+
+json
+Copier
+[
+  {
+    "code": "CM",
+    "name": "Cameroun",
+    "currency": "XAF",
+    "operators": ["MTN Mobile Money", "Orange Money"]
+  },
+  {
+    "code": "SN",
+    "name": "Sénégal",
+    "currency": "XOF",
+    "operators": ["Free Money", "Orange Money", "Wave"]
+  }
+  // ...
+]
+
+
+Pays disponibles (16)
+
+Bénin
+BJ · XOF
+Moov Money
+MTN Mobile Money
+
+Burkina Faso
+BF · XOF
+Moov Money
+Orange Money ⚡
+
+Cameroun
+CM · XAF
+MTN Mobile Money
+Orange Money
+
+Centrafrique
+CF · XAF
+Orange Money ⚡
+
+Congo
+CG · XAF
+Airtel Money
+MTN Mobile Money
+
+Côte d'Ivoire
+CI · XOF
+Moov Money
+MTN Mobile Money
+Orange Money ⚡
+Wave 🔗
+
+Gabon
+GA · XAF
+Airtel Money
+Moov Money
+
+Guinée Conakry
+GN · GNF
+MTN Mobile Money
+Orange Money ⚡
+
+Guinée équatoriale
+GQ · XAF
+Orange Money ⚡
+
+Guinée-Bissau
+GW · XOF
+Orange Money ⚡
+
+Mali
+ML · XOF
+Moov Money
+Orange Money ⚡
+
+Niger
+NE · XOF
+Airtel Money
+
+RD Congo
+CD · CDF
+Afrimoney
+Airtel Money
+Orange Money ⚡
+Vodacom M-Pesa
+
+Sénégal
+SN · XOF
+Free Money
+Orange Money ⚡
+Wave 🔗
+
+Tchad
+TD · XAF
+Airtel Money
+Moov Money
+
+Togo
+TG · XOF
+Flooz (Moov)
+T-Money
+
+USSD Push — pas d'OTP
+⚡ OTP requis (SMS reçu)
+🔗 Wave — lien de paiement
+
+
+Initier un paiement
+POST
+/v1/collect
+Initie un paiement Mobile Money. Le client reçoit une demande de validation sur son téléphone (USSD ou notification push selon l'opérateur). Les frais de la plateforme sont automatiquement déduits — le credited_amount correspond au montant net crédité sur votre compte.
+
+Corps de la requête (JSON)
+
+Paramètre	Type	Statut	Description
+amount	number	Requis	Montant brut à collecter
+currency	string	Requis	Devise du pays (XAF, XOF, GNF, CDF…)
+phone	string	Requis	Numéro de téléphone du payeur
+operator	string	Requis	Nom exact de l'opérateur (depuis /v1/countries)
+country_code	string	Requis	Code ISO du pays (CM, SN, CI…)
+reference	string	Optionnel	Référence unique de votre commande
+otp		string	Optionnel	Code OTP si requis (voir réponse 400 otp_required)
+notify_url	string	Optionnel	URL webhook pour recevoir le résultat du paiement
+
+
+Requête
+
+javascript
+fetch("https://ashtechpay.top/v1/collect", {
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer ak_83adbb920ef3efd424561f70d6b76e7bf0ed91cce302973a",
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    amount: 5000,
+    currency: "XAF",
+    phone: "670000000",
+    operator: "MTN Mobile Money",
+    country_code: "CM",
+    reference: "ORDER-001",
+    notify_url: "https://monsite.com/webhook"
+  })
+})
+
+
+Réponse (202)
+json
+
+{
+  "transaction_id": "8f3e1c2d-...",
+  "reference": "ORDER-001",
+  "status": "pending",
+  "amount": 5000,
+  "credited_amount": 4750,
+  "fee_amount": 250,
+  "currency": "XAF",
+  "operator": "MTN Mobile Money",
+  "phone": "670000000",
+  "country_code": "CM",
+  "created_at": "2026-03-15T14:00:00Z"
+}
+
+
+OTP requis (Orange Money CI, SN, ML, BF…)
+
+Certains opérateurs nécessitent un code OTP. Si c'est le cas, l'API retourne une erreur 400 otp_required avec le code USSD à composer. Relancez ensuite la requête en ajoutant le champ otp.
+
+json
+// Réponse 400 initiale
+{
+  "error": "otp_required",
+  "message": "OTP requis. Composez #144*82# pour obtenir votre code OTP.",
+  "ussd_code": "#144*82#"
+}
+
+// Relancer avec l'OTP
+{
+  "amount": 5000, "currency": "XOF", "phone": "07XXXXXXXX",
+  "operator": "Orange Money", "country_code": "CI",
+  "otp": "123456",
+  "notify_url": "https://monsite.com/webhook"
+}
+
+Flux de paiement
+Selon le pays et l'opérateur, l'API utilise automatiquement l'un des 4 flux ci-dessous. Votre code doit gérer chacun différemment car la réponse et les étapes varient.
+
+Flux	Opérateurs concernés	Réponse initiale	Action requise
+USSD Push	MTN, Moov, Airtel, Orange CM, Free SN, T-Money, Flooz, M-Pesa, Afrimoney…	202 pending	Attendre le webhook. Le client valide directement sur son téléphone.
+OTP SMS	Orange Money (CI, SN, ML, GN, CF, CG, GA, GW, GQ, CD, TD, TG) — reçoit SMS	400 otp_required
+ussd_code: null	Le client reçoit un SMS avec son OTP. Relancer la requête avec le champ otp.
+OTP USSD	Orange Money (BF) — compose un code USSD pour obtenir l'OTP	400 otp_required
+ussd_code: "*144*4*6*5000#"	Le client compose le code USSD fourni, saisit l'OTP reçu. Relancer avec otp.
+Wave	Wave (CI), Wave (SN)	202 pending
+				flow: "wave", wave_url: "..."	Afficher le wave_url en bouton ou QR code. Le client ouvre Wave pour confirmer.
+
+
+1-Flux USSD Push — La majorité des opérateurs
+Flux le plus simple. Le client reçoit une demande USSD sur son téléphone et valide en composant son PIN. Vous recevez la confirmation par webhook. Pas d'OTP à gérer côté merchant.
+
+Exemples d'opérateurs : MTN (CM, BJ, CG, GN, CD), Moov (BJ, CI, BF, GA, ML, TG), Airtel (CG, GA, NE, CD, TD), Orange (CM), Free Money (SN), T-Money (TG), Flooz (TG), Vodacom M-Pesa (CD), Afrimoney (CD)
+Requête
+
+javascript
+// Orange Money Cameroun — flux USSD push
+const res = await fetch("/v1/collect", {
+  method: "POST",
+  headers: { "Authorization": "Bearer ak_83adbb920ef3efd424561f70d6b76e7bf0ed91cce302973a" },
+  body: JSON.stringify({
+    amount: 5000,
+    currency: "XAF",
+    phone: "699000000",
+    operator: "Orange Money",
+    country_code: "CM",
+    notify_url: "https://monsite.com/webhook"
+  })
+});
+
+const data = await res.json();
+// data.status === "pending"
+// → Attendre le webhook payment.completed / payment.failed
+
+
+Réponse 202
+json
+{
+  "transaction_id": "abc-123",
+  "status": "pending",
+  "amount": 5000,
+  "credited_amount": 4750,
+  "fee_amount": 250,
+  "currency": "XAF"
+}
+
+// Le client reçoit la demande USSD
+// sur son téléphone → valide avec PIN
+// Webhook envoyé à notify_url
+
+
+2-Flux OTP SMS — Orange Money (la plupart des pays)
+Pour Orange Money dans la majorité des pays. Le réseau Orange envoie automatiquement un SMS contenant l'OTP au numéro du client. Votre interface doit demander au client de saisir cet OTP. Le champ ussd_code est null — aucun code à composer.
+
+Opérateurs concernés : Orange Money CI, Orange Money SN, Orange Money ML, Orange Money GN, Orange Money CF, Orange Money CG, Orange Money GA, Orange Money GW, Orange Money GQ, Orange Money CD, Orange Money TD
+
+Étape 1 — Requête initiale (sans OTP)
+javascript
+// Orange Money CI — étape 1 : sans OTP
+const res = await fetch("/v1/collect", {
+  method: "POST",
+  headers: { "Authorization": "Bearer ak_83adbb920ef3efd424561f70d6b76e7bf0ed91cce302973a" },
+  body: JSON.stringify({
+    amount: 1000,
+    currency: "XOF",
+    phone: "0700000000",
+    operator: "Orange Money",
+    country_code: "CI",
+    notify_url: "https://monsite.com/webhook"
+  })
+});
+// → 400 otp_required
+// ussd_code est null
+// Le client reçoit l'OTP par SMS
+
+
+Réponse 400 + Étape 2 — Avec OTP
+json
+// Réponse 400 :
+{
+  "error": "otp_required",
+  "message": "OTP requis pour cet opérateur.",
+  "ussd_code": null
+}
+
+// Le client reçoit son OTP par SMS
+// Étape 2 : relancer avec otp
+javascript
+// Étape 2 : même requête + otp
+body: JSON.stringify({
+  amount: 1000, currency: "XOF",
+  phone: "0700000000",
+  operator: "Orange Money",
+  country_code: "CI",
+  otp: "123456",  // ← OTP reçu par SMS
+  notify_url: "https://monsite.com/webhook"
+})
+// → 202 pending → webhook
+
+
+4-Flux OTP USSD — Orange Money Burkina Faso uniquement
+Spécifique au Burkina Faso. L'API retourne un ussd_code incluant le montant (ex : *144*4*6*5000#). Le client doit composer ce code depuis son téléphone — Orange répond par SMS avec l'OTP.
+
+Étape 1 — Requête initiale (sans OTP)
+javascript
+// Orange Money Burkina Faso — étape 1
+const res = await fetch("/v1/collect", {
+  method: "POST",
+  headers: { "Authorization": "Bearer ak_83adbb920ef3efd424561f70d6b76e7bf0ed91cce302973a" },
+  body: JSON.stringify({
+    amount: 5000,
+    currency: "XOF",
+    phone: "70000000",
+    operator: "Orange Money",
+    country_code: "BF",
+    notify_url: "https://monsite.com/webhook"
+  })
+});
+// → 400 otp_required
+// ussd_code contient le code USSD à composer
+
+
+Réponse 400 + Étape 2
+json
+// Réponse 400 :
+{
+  "error": "otp_required",
+  "message": "OTP requis. Composez *144*4*6*5000# pour obtenir votre code OTP.",
+  "ussd_code": "*144*4*6*5000#"
+}
+
+// Afficher à l'utilisateur :
+// "Composez *144*4*6*5000# sur votre téléphone,
+//  puis saisissez l'OTP reçu"
+
+javascript
+// Étape 2 : même requête + otp
+body: JSON.stringify({
+  amount: 5000, currency: "XOF",
+  phone: "70000000",
+  operator: "Orange Money",
+  country_code: "BF",
+  otp: "456789",  // ← OTP reçu après le USSD
+  notify_url: "https://monsite.com/webhook"
+})
+// → 202 pending → webhook
+
+4- Flux Wave — Côte d'Ivoire et Sénégal
+Pour Wave CI et Wave SN. L'API retourne directement un wave_url dans la réponse 202. Votre interface doit afficher ce lien (bouton ou QR code) pour que le client l'ouvre dans son application Wave. Pas d'OTP. Le numéro de téléphone n'est pas requis pour Wave.
+
+Requête
+javascript
+// Wave Côte d'Ivoire
+const res = await fetch("/v1/collect", {
+  method: "POST",
+  headers: { "Authorization": "Bearer ak_83adbb920ef3efd424561f70d6b76e7bf0ed91cce302973a" },
+  body: JSON.stringify({
+    amount: 2000,
+    currency: "XOF",
+    phone: "0700000000",  // facultatif pour Wave
+    operator: "Wave",
+    country_code: "CI",
+    notify_url: "https://monsite.com/webhook"
+  })
+});
+
+const data = await res.json();
+if (data.flow === "wave") {
+  // Afficher data.wave_url au client
+  window.open(data.wave_url, "_blank");
+}
+
+
+Réponse 202
+json
+{
+  "transaction_id": "xyz-789",
+  "status": "pending",
+  "amount": 2000,
+  "credited_amount": 1910,
+  "fee_amount": 90,
+  "currency": "XOF",
+  "operator": "Wave",
+  "country_code": "CI",
+  "flow": "wave",
+  "wave_url": "https://pay.wave.com/m/..."
+}
+
+// → Afficher wave_url comme bouton
+// "Payer avec Wave"
+// → Le client ouvre l'app Wave et confirme
+// → Webhook payment.completed envoyé
+
+
+Comment détecter le bon flux dans votre code
+javascript
+async function collectPayment(params) {
+  const res = await fetch("https://ashtechpay.top/v1/collect", {
+    method: "POST",
+    headers: {
+      "Authorization": "Bearer YOUR_API_KEY",
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(params)
+  });
+
+  const data = await res.json();
+
+  if (res.status === 202 && data.flow === "wave") {
+    // ─── Flux Wave : afficher le lien de paiement ─────────────
+    return { type: "wave", waveUrl: data.wave_url, transactionId: data.transaction_id };
+  }
+
+  if (res.status === 202) {
+    // ─── Flux USSD Push : attendre le webhook ──────────────────
+    return { type: "ussd_push", transactionId: data.transaction_id };
+  }
+
+  if (res.status === 400 && data.error === "otp_required") {
+    if (data.ussd_code) {
+      // ─── Flux OTP USSD (BF Orange) : code à composer ─────────
+      return { type: "otp_ussd", ussdCode: data.ussd_code };
+    } else {
+      // ─── Flux OTP SMS (Orange CI, SN, ML…) : SMS automatique ─
+      return { type: "otp_sms" };
+    }
+  }
+
+  throw new Error(data.message);
+}
+
+
+Statut d'une transaction
+GET
+/v1/transaction/:id
+Consultez le statut d'une transaction à tout moment via le transaction_id retourné lors de l'initiation. Vous pouvez également utiliser ce endpoint en complément du webhook.
+
+Requête
+javascript
+fetch(
+  "https://ashtechpay.top/v1/transaction/8f3e1c2d-...",
+  {
+    headers: {
+      "Authorization": "Bearer ak_83adbb920ef3efd424561f70d6b76e7bf0ed91cce302973a"
+    }
+  }
+)
+
+Réponse
+json
+{
+  "transaction_id": "8f3e1c2d-...",
+  "reference": "ORDER-001",
+  "status": "success",
+  "amount": 5000,
+  "credited_amount": 4750,
+  "fee_amount": 250,
+  "currency": "XAF",
+  "phone": "670000000",
+  "created_at": "2026-03-15T14:00:00Z",
+  "confirmed_at": "2026-03-15T14:02:17Z"
+}
+
+Statuts possibles
+
+Statut	Description	Final ?
+pending	En attente de confirmation de l'opérateur	Non
+success	Paiement confirmé — compte marchand crédité	Oui
+failed	Paiement refusé, expiré ou annulé	Oui
+
+
+Webhooks
+Quand une transaction atteint un état final, Ashtech Pay envoie automatiquement une requête POST à la notify_url que vous avez passée dans votre appel à /v1/collect. Le champ amount correspond au montant net après frais, et total_amount au montant brut collecté.
+
+Payload — paiement réussi
+json
+{
+  "event": "payment.completed",
+  "transaction_id": "8f3e1c2d-...",
+  "reference": "ORDER-001",
+  "status": "completed",
+  "amount": 4750,
+  "total_amount": 5000,
+  "currency": "XAF",
+  "type": "deposit",
+  "phone": "670000000",
+  "timestamp": "2026-03-15T14:02:17.000Z"
+}
+
+Payload — paiement échoué
+json
+{
+  "event": "payment.failed",
+  "transaction_id": "8f3e1c2d-...",
+  "reference": "ORDER-001",
+  "status": "failed",
+  "amount": 5000,
+  "total_amount": 5000,
+  "currency": "XAF",
+  "type": "deposit",
+  "phone": "670000000",
+  "timestamp": "2026-03-15T14:03:55.000Z"
+}
+
+
+Événements disponibles
+
+Événement		Déclencheur
+payment.completed	Paiement (dépôt) confirmé avec succès
+payment.failed		Paiement refusé, expiré ou annulé
+payout.completed	Retrait ou virement sortant confirmé
+payout.failed		Retrait ou virement échoué
+
+
+Handler (Node.js / Express)
+javascript
+app.post("/webhook", express.json(), async (req, res) => {
+  // Toujours répondre 200 en premier
+  res.status(200).json({ received: true });
+
+  const { event, transaction_id, reference, amount, currency } = req.body;
+
+  if (event === "payment.completed") {
+    // Créditer le client dans votre base
+    // amount = montant net (après frais)
+    await markOrderAsPaid(reference, { transactionId: transaction_id, amount, currency });
+  }
+
+  if (event === "payment.failed") {
+    await cancelOrder(reference);
+  }
+
+  if (event === "payout.completed") {
+    await markPayoutDone(reference, { transactionId: transaction_id });
+  }
+
+  if (event === "payout.failed") {
+    await markPayoutFailed(reference);
+  }
+});
+
+
+Bonnes pratiques
+Répondez toujours HTTP 200 immédiatement pour accuser réception
+Traitez la logique métier après avoir répondu 200 (asynchrone)
+Vérifiez le transaction_id dans votre base pour éviter les doublons
+Le webhook est complémentaire à GET /v1/transaction/:id — utilisez les deux
+Votre notify_url doit être une URL HTTPS publique (pas localhost)
+
+
+Codes d'erreur
+
+En cas d'erreur, l'API retourne un objet JSON avec les champs error et message.
+json
+{
+  "error": "bad_request",
+  "message": "Champs requis : amount, currency, phone, operator, country_code"
+}
+
+Code HTTP	Erreur		Signification
+400		bad_request	Paramètre manquant ou format invalide
+400		otp_required	OTP nécessaire — vérifiez ussd_code dans la réponse
+401		unauthorized	Clé API manquante, invalide ou révoquée
+403		forbidden	Cette transaction n'appartient pas à votre compte
+404		not_found	Transaction introuvable
+422		unprocessable	Pays ou opérateur non supporté / devise incorrecte
+429		rate_limited	Trop de requêtes — ralentissez
+502		gateway_error	Le réseau de l'opérateur a rejeté le paiement
+500		server_error	Erreur interne — réessayez
