@@ -1,0 +1,7 @@
+database.sqlite
+*.sqlite
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+/tmp/
+.env
