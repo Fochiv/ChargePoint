@@ -1,0 +1,287 @@
+🚀 PROMPT DE DÉVELOPPEMENT — CHARGEPOINT
+Plateforme d'Investissement à Long Terme avec Système de Paiement Automatique
+________________________________________
+🎯 CONTEXTE GÉNÉRAL DU PROJET
+Tu es un développeur full-stack senior. Tu dois concevoir et développer une plateforme d'investissement en ligne nommée ChargePoint, inspirée du secteur des bornes de recharge pour véhicules électriques. La plateforme permet à des utilisateurs du monde entier d'investir selon des plans VIP prédéfinis, de percevoir des revenus journaliers, et de bénéficier d'un système de parrainage multi-niveaux. Elle intègre un système de paiement automatique via l'API Ashtechpay, prenant en charge tous les pays disponibles dans cette API. Le site sera accesible via :  https://chargepoint.zya.me
+Charte graphique imposée :
+•	Couleur principale : Orange (#FF6B00 ou similaire)
+•	Couleur secondaire : Blanc / Gris clair
+•	Logo : ChargePoint (icône d'éclair ⚡ + texte CHARGEPOINT)
+•	Style : Moderne, professionnel, responsive (mobile-first)
+•	Police : Moderne et lisible (ex. : Sora, Plus Jakarta Sans, ou Nunito)
+________________________________________
+🏗️ ARCHITECTURE TECHNIQUE
+Stack recommandé
+Du Html, CSS, JS, PHP, BOOSTRAP et MYSQL, Compatible Wampserver . 
+________________________________________
+📄 PAGES ET FONCTIONNALITÉS À DÉVELOPPER
+PAGE 01 — Page d'accueil (Landing Page publique)
+Sections :
+1.	Hero : Slogan "Investissez aujourd'hui, Construisez votre avenir" + CTA "Commencer" + image illustrative (voiture électrique + borne de recharge)
+2.	Statistiques : +50K Investisseurs | +2M FCFA Investis | +1.5M FCFA Retirés | 100% Sécurisé
+3.	Présentation des plans VIP (aperçu condensé)
+4.	Avantages : Sécurisée / Fiable / Retraits rapides / Support 24/7
+5.	Programme de parrainage : présentation visuelle des 3 niveaux
+6.	Footer : Liens utiles + réseaux sociaux + mentions légales
+Navigation publique : Accueil | Plans | À propos | Contact | Langue | Bouton "S'inscrire" "Se connecter" (orange) 
+________________________________________
+PAGE 02 — Inscription
+Formulaire :
+•	Nom complet
+•	Email
+•	Téléphone (avec indicatif pays — tous pays Ashtechpay)
+•	Mot de passe + Confirmation du mot de passe
+•	Code de parrainage (optionnel) → doit valider et lier le parrain si renseigné et dans le cas ou il a clique sur le lien de parrainage, le code de parrainage est pris de manière automatique 
+•	Checkbox : J'accepte les Conditions d'utilisation
+•	Bouton : S'inscrire (orange)
+•	Lien : "Déjà un compte ? Se connecter"
+Logique back-end :
+•	Vérifier unicité email + téléphone
+•	Si code parrainage fourni → enregistrer la relation parrain/filleul (3 niveaux max)
+•	Rediriger vers le tableau de bord après inscription
+________________________________________
+PAGE 03 — Connexion
+Formulaire :
+•	Email ou téléphone
+•	Mot de passe
+•	Lien "Mot de passe oublié ?"
+•	Bouton : Se connecter (orange)
+•	Lien : "Pas encore de compte ? S'inscrire"
+Logique :
+•	Gestion session sécurisée
+•	Blocage après N tentatives échouées (anti-brute force)
+________________________________________
+PAGE 04 — Tableau de Bord (Dashboard Utilisateur)
+Header : Bonjour, [Prénom] + icône notification 
+Images ChargePoint qui défilent
+Widgets statistiques :
+Solde du compte	Gains du jour	Gains totaux	Parrainages
+125,000 FCFA	3,125 FCFA	245,750 FCFA	78
+Sections :
+•	Aperçu des revenus : gains journaliers accumulés
+•	Informations du compte : Statut (Actif/Inactif) | Date d'inscription | Dernière connexion
+•	Bouton : "Faire un dépôt" (orange, prominent)
+•	Accès rapides (icônes) : Dépôt | Retrait | Investir | Parrainage
+Menu (Bottom Navigation Bar) (en bas de l’écran) :
+•	Tableau de Bord
+•	VIP
+•	Equipe
+•	Mon profil
+________________________________________
+PAGE 05 — Plans d'Investissement (VIP)
+Affichage en grille de cartes (10 plans) :
+Plan	Montant	Gain/Jour	Gain Total (125j)	Durée
+VIP 1	3,000 FCFA	315 FCFA	39,375 FCFA	125 jours
+VIP 2	7,000 FCFA	770 FCFA	96,250 FCFA	125 jours
+VIP 3	15,000 FCFA	1,800 FCFA	225,000 FCFA	125 jours
+VIP 4	25,000 FCFA	3,125 FCFA	390,625 FCFA	125 jours
+VIP 5	45,000 FCFA	5,850 FCFA	731,250 FCFA	125 jours
+VIP 6	70,000 FCFA	9,450 FCFA	1,181,250 FCFA	125 jours
+VIP 7	115,000 FCFA	16,100 FCFA	2,012,500 FCFA	125 jours
+VIP 8	170,000 FCFA	24,650 FCFA	3,081,250 FCFA	125 jours
+VIP 9	250,000 FCFA	48,750 FCFA	6,093,750 FCFA	125 jours
+VIP 10	400,000 FCFA	78,000 FCFA	9,750,000 FCFA	125 jours
+Comportement :
+•	Chaque carte affiche : Plan | Montant | Gain/jour | Gain total | Durée | Bouton "Investir"
+•	Cliquer sur "Investir" → redirige vers la page Dépôt de fonds avec le montant pré-rempli correspondant au plan sélectionné
+•	Si l'utilisateur a déjà un plan actif, afficher le statut et les jours restants
+________________________________________
+PAGE 06 — Dépôt de Fonds
+Formulaire :
+•	Montant à déposer (pré-rempli si venant d'un plan VIP, sinon libre)
+•	Méthode de paiement : Mobile Money | Orange Money | MTN Money | Wave Money | (Par pays En fonction de L’API Ashtechpay)
+•	Bouton : Continuer
+COMPORTEMENT CRITIQUE — SUIVI EN TEMPS RÉEL DU STATUT DE PAIEMENT
+Après validation du formulaire et initiation du paiement via l'API Ashtechpay :
+Étape 1 — Initiation :
+•	Appel à l'API Ashtechpay pour créer la transaction
+•	L'API retourne un transaction_id et le statut initial "pending"
+•	Enregistrer la transaction en base de données avec statut "pending"
+Étape 2 — Écran de suivi (affiché immédiatement) :
+•	Afficher un écran dédié (overlay ou page) avec : 
+o	Message : "Veuillez valider le paiement sur votre téléphone"
+o	Compteur dégressif 08:00 → 00:00 (8 minutes)
+o	Indicateur de chargement animé (spinner ou pulse)
+o	Montant , Numéro de téléphone qui va valider la transaction + méthode de paiement rappelés
+o	Statut en temps réel : 🟡 En attente... → 🟢 Validé / 🔴 Échoué
+Étape 3 — Polling automatique :
+// Pseudo-code du mécanisme de polling
+const pollPaymentStatus = async (transactionId) => {
+  const interval = setInterval(async () => {
+    const response = await fetch(`/api/payment/status/${transactionId}`);
+    const { status } = await response.json();
+
+    if (status === "success") {
+      clearInterval(interval);
+      clearTimeout(timeoutTimer);
+      await updateTransactionInDB(transactionId, "success");
+      await creditUserAccount(userId, amount);
+      await activateInvestmentPlan(userId, planId); // si applicable
+      redirectTo("/dashboard?deposit=success");
+    }
+
+    if (status === "failed") {
+      clearInterval(interval);
+      clearTimeout(timeoutTimer);
+      await updateTransactionInDB(transactionId, "failed");
+      showError("Le paiement a échoué. Veuillez réessayer.");
+    }
+  }, 3000); // Polling toutes les 3 secondes
+
+  // Timer de 8 minutes (timeout)
+  const timeoutTimer = setTimeout(async () => {
+    clearInterval(interval);
+    await updateTransactionInDB(transactionId, "expired");
+    showError("Délai expiré. Votre transaction n'a pas été confirmée à temps.");
+    showRetryButton();
+  }, 8 * 60 * 1000); // 8 minutes
+};
+Étape 4 — Résultats :
+•	✅ Succès → Mettre à jour le solde utilisateur + activer le plan VIP si applicable → Rediriger vers le Tableau de bord avec message de succès
+•	❌ Échec ou expiration → Afficher message d'erreur clair + bouton "Réessayer" → Permettre relance sans recharger la page
+________________________________________
+PAGE 07 — Retrait de Fonds
+L’utilisateur ne peux pas retirer un fond s’il n’a pas un depot avant. Donc s’il ne fait pas de depot il ne peut pas lancer un retrait.
+Formulaire :
+•	Solde disponible affiché
+•	Montant à retirer (avec validation : min/max selon règles plateforme)
+•	Méthode de retrait (Mobile Money, selon pays)
+•	Numéro de compte/téléphone de réception
+•	Bouton : Confirmer le retrait
+Logique :
+•	Le retrait est enregistré en base avec statut "en attente"
+•	L'admin doit valider manuellement le retrait depuis le back-office
+•	Une fois validé par l'admin → le statut passe à "traité" et les données de l’utilisateur sont mises a jour 
+•	Afficher les informations : Retrait minimum | Dépôt maximum | Délai (00h - 15h PM)
+•	Afficher les frais de retrait (11% Des frais de retrait)
+Mon Portefeuille :
+•	Nom du porte feuille
+•	Pays
+•	Méthode de paiement
+•	Numéro de téléphone 
+•	Dernière modification
+•	Bouton « Modifier le Portefeuille »
+________________________________________
+PAGE 08 — Historique des Transactions
+Tableau paginé avec filtres :
+•	Colonnes : Date | Type (Dépôt/Retrait/Gain/Parrainage) | Description | Montant | Statut
+•	Filtres : Type | Période | Statut
+•	Statuts colorés : 🟢 Réussi | 🔴 Échoué | 🟡 En attente | 🔵 En cours
+•	Pagination (10/25/50 par page)
+________________________________________
+PAGE 09 — Programme de Parrainage
+Affichage :
+•	Lien de parrainage unique de l'utilisateur (avec bouton Copier + partage)
+•	Statistiques : Nombre de filleuls | Gains totaux de parrainage | Niveau actuel
+•	Arbre de parrainage visuel (3 niveaux)
+Commissions :
+Niveau	Commission	Description
+Niveau 1 (filleuls directs)	20%	Sur chaque dépôt du filleul direct
+Niveau 2 (filleuls de filleuls)	5%	Sur chaque dépôt de niveau 2
+Niveau 3	2%	Sur chaque dépôt de niveau 3
+Total potentiel	27%	—
+Logique back-end :
+•	Lors de chaque dépôt validé → calculer et créditer automatiquement les commissions aux parrains des 3 niveaux
+•	Tracer chaque commission dans la table transactions avec type "parrainage"
+________________________________________
+PAGE 10 — Profil Utilisateur
+Sections :
+•	Informations personnelles : Nom | Email | Téléphone | Date d'inscription | Statut du compte
+•	Sécurité : Changer mot de passe 
+•	Méthodes de paiement : Numéros enregistrés
+•	Paramètres de sécurité
+________________________________________
+🔧 PANNEAU D'ADMINISTRATION (BACK-OFFICE)
+ON NE PEUT PAS ACCEDER A LA PAGE ADMIN DEPUIS LA PAGE UTILISATEUR MAIS ON PEUT FAIRE L’INVERSE
+Infos de connexion Admin…. Login : Ben10 / Mot de passe : 1214161820@Ben
+Accès : Route sécurisée /admin — authentification séparée
+Fonctionnalités :
+Tableau de bord admin
+•	Statistiques globales : Total investisseurs | Total déposé | Total retiré | Revenus générés
+•	Graphiques d'activité
+•	Alertes : Retraits en attente | Transactions échouées
+Gestion des utilisateurs
+•	Liste paginée avec recherche et filtres
+•	L’admin peut effectuer un dépôt Administratif permettant à un utilisateur d’effectuer son retrait sans avoir besoin de faire un dépôt
+•	Et un dépôt manuel (qui ne peut ne peut pas être retirer mais pouvant activer un ou plusieurs VIPs)
+•	Voir profil, solde, historique
+•	Suspendre / Supprimer un compte
+•	Modifier le solde manuellement (ajustement admin)
+Gestion des retraits (critique)
+•	Liste des retraits en attente avec recherche et filtres
+•	Pour chaque retrait : Utilisateur | Pays | Numéro de retrait (Avec bouton Copier) | Montant | Méthode | Date | Actions
+•	Bouton Valider → L’admin fait la transaction sur ashtechpay manuellement et valide le retrait sur l’interface admin de chargepoint aussi manuellement+ Et les données se mettent a jour automatique après. 
+•	Bouton Rejeter → statut "rejeté" + notifie l'utilisateur avec motif
+Gestion des transactions
+•	Vue globale de toutes les transactions (dépôts, retraits, gains, parrainages)
+•	Filtres avancés
+Gestion des plans VIP
+•	CRUD des plans (modifier montants, gains, durées)
+Paramètres de la plateforme
+•	Taux de commission parrainage (modifiable)
+•	Montants min/max de dépôt/retrait
+•	Maintenance mode
+•	Gestion des pays/méthodes de paiement actifs
+Déconnexion
+________________________________________
+⚙️ LOGIQUE MÉTIER CRITIQUE
+Distribution des gains journaliers(gains ajoutes en fonction du VIP)
+Tâche CRON : Tous les jours à 00:00 UTC
+→ Pour chaque investissement actif (status = "active") :
+  1. Ajouter daily_gain au solde de l'utilisateur
+  2. Enregistrer une transaction type "daily_gain"
+  3. Décrémenter days_remaining
+  4. Si days_remaining = 0 → mettre investment.status = "completed"
+Calcul des commissions de parrainage (lors d'un dépôt validé)
+Lors de deposit.status → "success" :
+→ Trouver parrain niveau 1 (user.referred_by) → créditer 20% du montant déposé
+→ Trouver parrain niveau 2 (parrain_niveau1.referred_by) → créditer 5%
+→ Trouver parrain niveau 3 (parrain_niveau2.referred_by) → créditer 2%
+→ Enregistrer chaque commission comme transaction type "referral_commission"
+________________________________________
+🌍 INTERNATIONALISATION ET MULTI-DEVISES
+•	Interface disponible en Français (langue principale) et Anglais
+•	Devise par défaut : FCFA (XAF)
+•	Support des pays disponibles dans l'API Ashtechpay (à récupérer dynamiquement via l'API)
+•	Sélecteur de langue dans la navbar
+•	Indicatif téléphonique automatique selon le pays sélectionné
+________________________________________
+📱 RESPONSIVE DESIGN
+•	Mobile-first (priorité aux écrans 375px+)
+•	Breakpoints : mobile | tablette | desktop
+•	Menu burger sur mobile
+•	Sidebar collapsible sur tablet
+•	Cartes VIP en scroll horizontal sur mobile
+•	Tableaux avec scroll horizontal sur mobile
+________________________________________
+🔐 SÉCURITÉ
+•	Juste des requêtes préparées 
+•	Méthode pour éviter des injections SQL
+________________________________________
+📧 NOTIFICATIONS
+Notifications in-app :
+•	Cloche avec badge dans le header
+•	Liste des notifications récentes
+________________________________________
+🎨 COMPOSANTS UI RÉUTILISABLES À CRÉER
+•	<StatCard /> : carte statistique avec icône, valeur, variation
+•	<VIPPlanCard /> : carte plan d'investissement avec bouton CTA
+•	<TransactionTable /> : tableau paginé avec filtres
+•	<PaymentStatusModal /> : modal de suivi en temps réel (countdown + polling)
+•	<ReferralTree /> : visualisation arbre de parrainage
+•	<RevenueChart /> : graphique gains (Recharts ou Chart.js)
+•	<StatusBadge /> : badge coloré selon statut
+•	<WithdrawalCard /> : carte de retrait pour admin
+________________________________________
+✅ CRITÈRES DE SUCCÈS
+•	[ ] Un utilisateur peut s'inscrire, se connecter, choisir un plan VIP et déposer des fonds
+•	[ ] Le suivi du paiement fonctionne en temps réel (countdown + polling automatique)
+•	[ ] Les gains journaliers sont crédités automatiquement via CRON
+•	[ ] Le système de parrainage à 3 niveaux fonctionne et crédite automatiquement
+•	[ ] Les retraits nécessitent validation admin avant exécution
+•	[ ] L'admin peut gérer utilisateurs, retraits, transactions depuis le back-office
+•	[ ] La plateforme est responsive sur tous les appareils
+•	[ ] Toutes les transactions sont tracées et auditables
+________________________________________
+Prompt rédigé pour le projet ChargePoint — Version 1.0
+
