@@ -19,7 +19,10 @@ function renderAdminSidebar(string $activePage = ''): void {
 ?>
 <div style="display:flex;">
 <aside class="admin-sidebar">
-  <div class="admin-sidebar-logo">⚡ CHARGEPOINT <div style="font-size:0.7rem;color:rgba(255,255,255,0.4);margin-top:2px;">Administration</div></div>
+  <div class="admin-sidebar-logo" style="display:flex;align-items:center;gap:10px;">
+    <img src="/assets/logo.jpg" alt="Logo" style="width:34px;height:34px;border-radius:8px;object-fit:cover;flex-shrink:0;">
+    <div><div style="font-weight:800;"><span style="color:var(--primary);">Charge</span><span style="color:rgba(255,255,255,0.6);">Point</span></div><div style="font-size:0.7rem;color:rgba(255,255,255,0.4);margin-top:1px;">Administration</div></div>
+  </div>
   <nav class="admin-sidebar-nav">
     <a href="/admin/dashboard.php" class="admin-nav-item <?= $activePage==='dashboard'?'active':'' ?>"><i class="fas fa-th-large" style="width:20px"></i> Tableau de Bord</a>
     <a href="/admin/users.php" class="admin-nav-item <?= $activePage==='users'?'active':'' ?>"><i class="fas fa-users" style="width:20px"></i> Utilisateurs</a>

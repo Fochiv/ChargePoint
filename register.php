@@ -78,7 +78,10 @@ $countries = getDefaultCountries();
 <body>
 <div class="auth-page">
   <div class="auth-card" style="max-width:520px;">
-    <div class="auth-logo"><a href="/" style="font-size:1.6rem;font-weight:800;color:var(--primary);">⚡ CHARGEPOINT</a></div>
+    <div class="auth-logo"><a href="/" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;">
+      <img src="/assets/logo.jpg" alt="Logo" style="width:36px;height:36px;border-radius:9px;object-fit:cover;">
+      <span style="font-size:1.6rem;font-weight:800;"><span style="color:var(--primary);">Charge</span><span style="color:#6b7280;">Point</span></span>
+    </a></div>
     <h1 class="auth-title">Créer un compte</h1>
     <p class="auth-subtitle">Rejoignez des milliers d'investisseurs africains</p>
 

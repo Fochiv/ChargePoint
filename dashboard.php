@@ -3,6 +3,7 @@ require_once 'includes/config.php';
 require_once 'includes/db.php';
 require_once 'includes/auth.php';
 require_once 'includes/functions.php';
+require_once 'includes/layout.php';
 startSession();
 requireLogin();
 $user = getCurrentUser();
@@ -49,23 +50,32 @@ $depositSuccess = isset($_GET['deposit']) && $_GET['deposit'] === 'success';
 
 <!-- BANNER SLIDER -->
 <div class="banner-slider">
-  <div class="banner-slide slide-1 active">
-    <div>
-      <div style="font-size:1.3rem;font-weight:700;">⚡ Investissez, Gagnez, Retirez</div>
-      <div style="font-size:0.9rem;opacity:0.8;margin-top:6px;">Vos gains journaliers créditent automatiquement</div>
-    </div>
+  <div class="banner-slide active">
+    <img src="/assets/chargepoint1.jpg" alt="ChargePoint">
+    <div class="banner-caption"><div class="banner-caption-title"><i class="fas fa-bolt"></i> Investissez, Gagnez, Retirez</div><div class="banner-caption-sub">Vos gains journaliers créditent automatiquement</div></div>
   </div>
-  <div class="banner-slide slide-2">
-    <div>
-      <div style="font-size:1.3rem;font-weight:700;">🚀 Plans VIP disponibles</div>
-      <div style="font-size:0.9rem;opacity:0.8;margin-top:6px;">Dès 3 000 FCFA — Gains sur 125 jours</div>
-    </div>
+  <div class="banner-slide">
+    <img src="/assets/chargepoint2.jpg" alt="ChargePoint">
+    <div class="banner-caption"><div class="banner-caption-title"><i class="fas fa-crown"></i> Plans VIP disponibles</div><div class="banner-caption-sub">Dès 3 000 FCFA — Gains sur 125 jours</div></div>
   </div>
-  <div class="banner-slide slide-3">
-    <div>
-      <div style="font-size:1.3rem;font-weight:700;">👥 Programme de Parrainage</div>
-      <div style="font-size:0.9rem;opacity:0.8;margin-top:6px;">Gagnez jusqu'à 27% sur les dépôts de vos filleuls</div>
-    </div>
+  <div class="banner-slide">
+    <img src="/assets/chargepoint3.jpg" alt="ChargePoint">
+    <div class="banner-caption"><div class="banner-caption-title"><i class="fas fa-users"></i> Programme de Parrainage</div><div class="banner-caption-sub">Gagnez jusqu'à 27% sur les dépôts de vos filleuls</div></div>
+  </div>
+  <div class="banner-slide">
+    <img src="/assets/chargepoint4.jpg" alt="ChargePoint">
+    <div class="banner-caption"><div class="banner-caption-title"><i class="fas fa-shield-alt"></i> Plateforme Sécurisée</div><div class="banner-caption-sub">100% fiable et transparent</div></div>
+  </div>
+  <div class="banner-slide">
+    <img src="/assets/chargepoint5.jpg" alt="ChargePoint">
+    <div class="banner-caption"><div class="banner-caption-title"><i class="fas fa-mobile-alt"></i> Mobile Money</div><div class="banner-caption-sub">Retraits rapides via Orange, MTN, Wave</div></div>
+  </div>
+  <div class="banner-dots">
+    <span class="banner-dot active"></span>
+    <span class="banner-dot"></span>
+    <span class="banner-dot"></span>
+    <span class="banner-dot"></span>
+    <span class="banner-dot"></span>
   </div>
 </div>
 
@@ -103,19 +113,19 @@ $depositSuccess = isset($_GET['deposit']) && $_GET['deposit'] === 'success';
 <!-- QUICK ACTIONS -->
 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;" class="quick-grid">
   <a href="/deposit.php" class="quick-action">
-    <div class="quick-action-icon">💳</div>
+    <div class="quick-action-icon"><i class="fas fa-arrow-down-to-line"></i></div>
     <div class="quick-action-label">Dépôt</div>
   </a>
   <a href="/withdraw.php" class="quick-action">
-    <div class="quick-action-icon">💸</div>
+    <div class="quick-action-icon"><i class="fas fa-arrow-up-from-bracket"></i></div>
     <div class="quick-action-label">Retrait</div>
   </a>
   <a href="/vip.php" class="quick-action">
-    <div class="quick-action-icon">👑</div>
+    <div class="quick-action-icon"><i class="fas fa-crown"></i></div>
     <div class="quick-action-label">Investir</div>
   </a>
   <a href="/referral.php" class="quick-action">
-    <div class="quick-action-icon">👥</div>
+    <div class="quick-action-icon"><i class="fas fa-users"></i></div>
     <div class="quick-action-label">Parrainage</div>
   </a>
 </div>
@@ -131,7 +141,7 @@ $depositSuccess = isset($_GET['deposit']) && $_GET['deposit'] === 'success';
     <div class="card-custom-body" style="padding:0;">
       <?php if (empty($investments)): ?>
       <div class="empty-state">
-        <div class="empty-state-icon">👑</div>
+        <div class="empty-state-icon"><i class="fas fa-crown" style="color:var(--primary);font-size:2rem;"></i></div>
         <div class="empty-state-title">Aucun plan actif</div>
         <p style="font-size:0.85rem;margin-top:8px;">Investissez dans un plan VIP</p>
         <a href="/vip.php" class="btn-primary-custom" style="margin-top:12px;font-size:0.85rem;padding:10px 20px;">Choisir un plan</a>
@@ -192,7 +202,7 @@ $depositSuccess = isset($_GET['deposit']) && $_GET['deposit'] === 'success';
   </div>
   <div style="overflow-x:auto;">
     <?php if (empty($transactions)): ?>
-    <div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-title">Aucune transaction</div></div>
+    <div class="empty-state"><div class="empty-state-icon"><i class="fas fa-receipt" style="color:var(--text-muted);font-size:2rem;"></i></div><div class="empty-state-title">Aucune transaction</div></div>
     <?php else: ?>
     <table class="table-custom">
       <thead><tr><th>Date</th><th>Type</th><th>Description</th><th>Montant</th><th>Statut</th></tr></thead>

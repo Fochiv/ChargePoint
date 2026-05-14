@@ -41,7 +41,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="auth-page" style="background:linear-gradient(135deg,#1a1a2e,#0f3460);">
   <div class="auth-card">
     <div class="auth-logo">
-      <span style="font-size:1.6rem;font-weight:800;color:var(--primary);">⚡ CHARGEPOINT</span><br>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+        <img src="/assets/logo.jpg" alt="Logo" style="width:36px;height:36px;border-radius:9px;object-fit:cover;">
+        <span style="font-size:1.6rem;font-weight:800;"><span style="color:var(--primary);">Charge</span><span style="color:#6b7280;">Point</span></span>
+      </div>
       <span style="font-size:0.85rem;color:var(--text-muted);">Administration</span>
     </div>
     <h1 class="auth-title">Panneau Admin</h1>

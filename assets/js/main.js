@@ -12,14 +12,21 @@ document.addEventListener('DOMContentLoaded', function() {
 // ===== BANNER SLIDER =====
 function initBannerSlider() {
     const slides = document.querySelectorAll('.banner-slide');
+    const dots = document.querySelectorAll('.banner-dot');
     if (!slides.length) return;
     let current = 0;
-    slides[0].classList.add('active');
-    setInterval(() => {
+
+    function goTo(idx) {
         slides[current].classList.remove('active');
-        current = (current + 1) % slides.length;
+        if (dots[current]) dots[current].classList.remove('active');
+        current = idx;
         slides[current].classList.add('active');
-    }, 4000);
+        if (dots[current]) dots[current].classList.add('active');
+    }
+
+    dots.forEach((dot, i) => dot.addEventListener('click', () => goTo(i)));
+
+    setInterval(() => goTo((current + 1) % slides.length), 4000);
 }
 
 // ===== COUNTRY / PHONE FIELDS =====

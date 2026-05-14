@@ -21,7 +21,10 @@ $ref = $_GET['ref'] ?? '';
 
 <!-- NAVBAR -->
 <nav class="navbar-custom">
-  <a href="/" class="logo"><span class="lightning">⚡</span> CHARGEPOINT</a>
+  <a href="/" class="logo">
+    <img src="/assets/logo.jpg" alt="Logo" style="width:36px;height:36px;border-radius:9px;object-fit:cover;">
+    <span><span style="color:var(--primary);font-weight:800;">Charge</span><span style="color:#6b7280;font-weight:800;">Point</span></span>
+  </a>
   <div class="nav-links" id="nav_links">
     <a href="/">Accueil</a>
     <a href="#plans">Plans</a>
@@ -41,7 +44,7 @@ $ref = $_GET['ref'] ?? '';
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;" class="hero-grid">
       <div class="hero-content">
         <div style="display:inline-block;background:rgba(255,107,0,0.15);color:var(--primary);padding:6px 16px;border-radius:20px;font-size:0.85rem;font-weight:700;margin-bottom:20px;">
-          ⚡ Plateforme d'Investissement #1 en Afrique
+          <i class="fas fa-award"></i> Plateforme d'Investissement #1 en Afrique
         </div>
         <h1>Investissez <span>aujourd'hui</span>,<br>Construisez votre <span>avenir</span></h1>
         <p style="margin:20px 0 32px;">Rejoignez plus de 50 000 investisseurs africains qui génèrent des revenus journaliers avec nos plans VIP sécurisés.</p>
@@ -61,7 +64,7 @@ $ref = $_GET['ref'] ?? '';
       </div>
       <div style="text-align:center;" class="hero-img-container">
         <div style="width:100%;max-width:440px;margin:0 auto;background:rgba(255,255,255,0.05);border-radius:24px;padding:30px;border:1px solid rgba(255,255,255,0.1);animation:float 4s ease-in-out infinite;">
-          <div style="font-size:5rem;margin-bottom:16px;">⚡🔋</div>
+          <div style="font-size:4rem;margin-bottom:16px;color:var(--primary);"><i class="fas fa-charging-station"></i></div>
           <div style="color:white;font-size:1.3rem;font-weight:700;margin-bottom:8px;">Votre argent travaille pour vous</div>
           <div style="color:rgba(255,255,255,0.6);font-size:0.9rem;">Gains journaliers automatiques</div>
           <div style="margin-top:20px;background:rgba(255,107,0,0.2);border-radius:12px;padding:16px;">
@@ -118,10 +121,10 @@ $ref = $_GET['ref'] ?? '';
     <h2 class="section-title">Pourquoi <span>ChargePoint</span> ?</h2>
     <p class="section-subtitle">Une plateforme conçue pour maximiser vos gains en toute sécurité.</p>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:24px;">
-      <div class="advantage-card"><div class="advantage-icon">🔒</div><div class="advantage-title">100% Sécurisée</div><div class="advantage-text">Vos investissements sont protégés avec les meilleures technologies de sécurité.</div></div>
-      <div class="advantage-card"><div class="advantage-icon">✅</div><div class="advantage-title">Fiable & Transparent</div><div class="advantage-text">Chaque transaction est tracée et vérifiable. Historique complet disponible.</div></div>
-      <div class="advantage-card"><div class="advantage-icon">⚡</div><div class="advantage-title">Retraits Rapides</div><div class="advantage-text">Retirez vos gains facilement via Mobile Money dans 16 pays africains.</div></div>
-      <div class="advantage-card"><div class="advantage-icon">🎧</div><div class="advantage-title">Support 24/7</div><div class="advantage-text">Notre équipe est disponible à toute heure pour vous accompagner.</div></div>
+      <div class="advantage-card"><div class="advantage-icon"><i class="fas fa-shield-alt"></i></div><div class="advantage-title">100% Sécurisée</div><div class="advantage-text">Vos investissements sont protégés avec les meilleures technologies de sécurité.</div></div>
+      <div class="advantage-card"><div class="advantage-icon"><i class="fas fa-check-circle"></i></div><div class="advantage-title">Fiable & Transparent</div><div class="advantage-text">Chaque transaction est tracée et vérifiable. Historique complet disponible.</div></div>
+      <div class="advantage-card"><div class="advantage-icon"><i class="fas fa-bolt"></i></div><div class="advantage-title">Retraits Rapides</div><div class="advantage-text">Retirez vos gains facilement via Mobile Money dans 16 pays africains.</div></div>
+      <div class="advantage-card"><div class="advantage-icon"><i class="fas fa-headset"></i></div><div class="advantage-title">Support 24/7</div><div class="advantage-text">Notre équipe est disponible à toute heure pour vous accompagner.</div></div>
     </div>
   </div>
 </section>
@@ -134,7 +137,7 @@ $ref = $_GET['ref'] ?? '';
     <div style="display:flex;justify-content:center;gap:30px;flex-wrap:wrap;margin-bottom:32px;">
       <div style="text-align:center;">
         <div style="color:rgba(255,255,255,0.5);font-size:0.8rem;margin-bottom:12px;">VOUS</div>
-        <div style="width:60px;height:60px;background:var(--primary);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto;">👤</div>
+        <div style="width:60px;height:60px;background:var(--primary);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto;color:white;"><i class="fas fa-user"></i></div>
       </div>
       <div style="display:flex;align-items:center;color:rgba(255,255,255,0.3);">→→→</div>
       <div class="referral-node"><div class="percent">20%</div><div class="level-label">Niveau 1</div><div style="color:rgba(255,255,255,0.5);font-size:0.75rem;margin-top:4px;">Filleuls directs</div></div>
@@ -155,7 +158,10 @@ $ref = $_GET['ref'] ?? '';
   <div style="max-width:1200px;margin:0 auto;padding:0 24px;">
     <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:40px;" class="footer-grid">
       <div>
-        <div class="footer-brand">⚡ CHARGEPOINT</div>
+        <div class="footer-brand" style="display:flex;align-items:center;gap:10px;">
+          <img src="/assets/logo.jpg" alt="Logo" style="width:32px;height:32px;border-radius:8px;object-fit:cover;">
+          <span><span style="color:var(--primary);font-weight:800;">Charge</span><span style="color:#9ca3af;font-weight:800;">Point</span></span>
+        </div>
         <p style="margin-top:12px;font-size:0.88rem;max-width:280px;">Votre partenaire d'investissement de confiance pour construire un avenir financier solide en Afrique.</p>
         <div style="margin-top:20px;">
           <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>

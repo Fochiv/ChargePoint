@@ -37,7 +37,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
 <div class="auth-page">
   <div class="auth-card">
-    <div class="auth-logo"><a href="/" style="font-size:1.6rem;font-weight:800;color:var(--primary);">⚡ CHARGEPOINT</a></div>
+    <div class="auth-logo"><a href="/" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;">
+      <img src="/assets/logo.jpg" alt="Logo" style="width:36px;height:36px;border-radius:9px;object-fit:cover;">
+      <span style="font-size:1.6rem;font-weight:800;"><span style="color:var(--primary);">Charge</span><span style="color:#6b7280;">Point</span></span>
+    </a></div>
     <h1 class="auth-title">Bon retour !</h1>
     <p class="auth-subtitle">Connectez-vous à votre espace investisseur</p>
 
