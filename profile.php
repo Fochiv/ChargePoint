@@ -3,6 +3,7 @@ require_once 'includes/config.php';
 require_once 'includes/db.php';
 require_once 'includes/auth.php';
 require_once 'includes/functions.php';
+require_once 'includes/layout.php';
 startSession();
 requireLogin();
 $user = getCurrentUser();
@@ -146,7 +147,7 @@ function getDialCode(string $code): string {
         <div class="alert alert-warning" style="margin-bottom:16px;">Aucun portefeuille configuré. Ajoutez-en un pour effectuer des retraits.</div>
         <?php endif; ?>
         <a href="/withdraw.php#wallet" class="btn-primary-custom" style="width:100%;justify-content:center;">
-          <i class="fas fa-edit"></i> Modifier le Portefeuille
+          <i class="fas fa-pen-to-square"></i> Modifier le Portefeuille
         </a>
       </div>
     </div>

@@ -126,7 +126,7 @@ $pendingCount = $db->query("SELECT COUNT(*) FROM transactions WHERE type='withdr
               </button>
             </form>
             <button onclick="openRejectModal(<?= $wd['id'] ?>)" style="background:var(--danger);color:white;border:none;padding:6px 12px;border-radius:8px;font-size:0.82rem;cursor:pointer;font-weight:600;">
-              <i class="fas fa-times"></i> Rejeter
+              <i class="fas fa-xmark"></i> Rejeter
             </button>
           </div>
           <?php elseif ($wd['status'] === 'rejected' && $wd['reject_reason']): ?>
@@ -155,7 +155,7 @@ $pendingCount = $db->query("SELECT COUNT(*) FROM transactions WHERE type='withdr
 <!-- REJECT MODAL -->
 <div id="reject_modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;padding:20px;">
   <div style="background:white;border-radius:20px;padding:32px;max-width:420px;width:100%;">
-    <h3 style="margin-bottom:16px;color:var(--danger);"><i class="fas fa-times-circle"></i> Rejeter le retrait</h3>
+    <h3 style="margin-bottom:16px;color:var(--danger);"><i class="fas fa-circle-xmark"></i> Rejeter le retrait</h3>
     <form method="POST">
       <input type="hidden" name="tx_id" id="reject_tx_id">
       <input type="hidden" name="action" value="reject">

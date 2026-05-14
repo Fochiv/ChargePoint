@@ -32,14 +32,14 @@ function renderAppLayout(array $user, string $activePage = ''): void {
       <a href="/profile.php" class="sidebar-item ' . $active('profile') . '"><span class="sidebar-icon"><i class="fas fa-user"></i></span> Mon Profil</a>
     </nav>
     <div class="sidebar-bottom">
-      <a href="/logout.php" class="sidebar-item" style="color:#ef4444"><span class="sidebar-icon"><i class="fas fa-sign-out-alt"></i></span> Déconnexion</a>
+      <a href="/logout.php" class="sidebar-item" style="color:#ef4444"><span class="sidebar-icon"><i class="fas fa-right-from-bracket"></i></span> Déconnexion</a>
     </div>
   </aside>
 
   <main class="main-content">
     <div class="app-header">
       <div>
-        <div class="app-header-greeting">Bonjour, <span>' . e(explode(' ', $user['name'])[0]) . '</span> <i class="fas fa-hand-wave" style="color:var(--primary)"></i></div>
+        <div class="app-header-greeting">Bonjour, <span>' . e(explode(' ', $user['name'])[0]) . '</span> <i class="fas fa-hand" style="color:var(--primary)"></i></div>
         <div style="font-size:0.8rem;color:var(--text-muted)">'
         . ($user['status'] === 'active'
             ? '<span style="color:var(--success)">● Compte actif</span>'

@@ -36,7 +36,7 @@ function renderAdminSidebar(string $activePage = ''): void {
     <div style="padding:16px 24px;margin-top:auto;">
       <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:16px;">
         <a href="/admin/logout.php" class="admin-nav-item" style="color:rgba(255,100,100,0.8);padding:10px 0;">
-          <i class="fas fa-sign-out-alt" style="width:20px"></i> Déconnexion
+          <i class="fas fa-right-from-bracket" style="width:20px"></i> Déconnexion
         </a>
       </div>
     </div>

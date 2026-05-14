@@ -56,7 +56,7 @@ $plans = $db->query("SELECT p.*, (SELECT COUNT(*) FROM investments WHERE plan_id
 
 <!-- CREATE NEW PLAN -->
 <div class="card-custom" style="margin-bottom:24px;">
-  <div class="card-custom-header"><h5><i class="fas fa-plus-circle" style="color:var(--success)"></i> Créer un Nouveau Plan</h5></div>
+  <div class="card-custom-header"><h5><i class="fas fa-circle-plus" style="color:var(--success)"></i> Créer un Nouveau Plan</h5></div>
   <div class="card-custom-body">
     <form method="POST" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;align-items:flex-end;">
       <input type="hidden" name="action" value="create">
@@ -87,7 +87,7 @@ $plans = $db->query("SELECT p.*, (SELECT COUNT(*) FROM investments WHERE plan_id
         <td><?= $plan['is_active'] ? '<span class="badge bg-success">Actif</span>' : '<span class="badge bg-secondary">Inactif</span>' ?></td>
         <td>
           <div style="display:flex;gap:6px;">
-            <button onclick="openEditPlan(<?= htmlspecialchars(json_encode($plan), ENT_QUOTES) ?>)" style="background:var(--info);color:white;border:none;padding:5px 10px;border-radius:8px;font-size:0.82rem;cursor:pointer;font-weight:600;"><i class="fas fa-edit"></i></button>
+            <button onclick="openEditPlan(<?= htmlspecialchars(json_encode($plan), ENT_QUOTES) ?>)" style="background:var(--info);color:white;border:none;padding:5px 10px;border-radius:8px;font-size:0.82rem;cursor:pointer;font-weight:600;"><i class="fas fa-pen-to-square"></i></button>
             <form method="POST" style="display:inline">
               <input type="hidden" name="action" value="toggle">
               <input type="hidden" name="plan_id" value="<?= $plan['id'] ?>">

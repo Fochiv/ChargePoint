@@ -204,7 +204,7 @@ $plans = $db->query("SELECT * FROM vip_plans WHERE is_active=1 ORDER BY amount A
 
     <!-- Admin Deposit -->
     <div style="margin-bottom:20px;border:1px solid var(--border);border-radius:14px;padding:16px;">
-      <div style="font-weight:700;margin-bottom:12px;color:var(--success);"><i class="fas fa-plus-circle"></i> Dépôt Administratif</div>
+      <div style="font-weight:700;margin-bottom:12px;color:var(--success);"><i class="fas fa-circle-plus"></i> Dépôt Administratif</div>
       <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:12px;">Permet à l'utilisateur de retirer sans dépôt préalable.</p>
       <form method="POST">
         <input type="hidden" name="user_id" id="adm_dep_uid">

@@ -106,7 +106,7 @@ $depositSuccess = isset($_GET['deposit']) && $_GET['deposit'] === 'success';
 <!-- MAIN DEPOSIT BUTTON -->
 <div style="margin-bottom:24px;">
   <a href="/deposit.php" class="btn-primary-custom" style="width:100%;justify-content:center;font-size:1.05rem;padding:16px;">
-    <i class="fas fa-plus-circle"></i> Faire un Dépôt
+    <i class="fas fa-circle-plus"></i> Faire un Dépôt
   </a>
 </div>
 

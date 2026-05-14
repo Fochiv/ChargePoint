@@ -3,6 +3,7 @@ require_once 'includes/config.php';
 require_once 'includes/db.php';
 require_once 'includes/auth.php';
 require_once 'includes/functions.php';
+require_once 'includes/layout.php';
 startSession();
 requireLogin();
 $user = getCurrentUser();
@@ -75,7 +76,7 @@ $activePlanIds = array_column($activeInvestments, 'plan_id');
     </div>
     <?php if ($isActive): ?>
     <div style="margin-top:16px;text-align:center;background:rgba(16,185,129,0.1);color:var(--success);padding:10px;border-radius:10px;font-weight:700;font-size:0.9rem;">
-      <i class="fas fa-check-circle"></i> Plan en cours
+      <i class="fas fa-circle-check"></i> Plan en cours
     </div>
     <?php else: ?>
     <a href="/deposit.php?plan=<?= $plan['id'] ?>&amount=<?= $plan['amount'] ?>" style="display:block;text-align:center;margin-top:16px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;padding:12px;border-radius:10px;font-weight:700;font-size:0.9rem;transition:all 0.2s;">

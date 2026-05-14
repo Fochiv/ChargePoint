@@ -122,7 +122,7 @@ $ref = $_GET['ref'] ?? '';
     <p class="section-subtitle">Une plateforme conçue pour maximiser vos gains en toute sécurité.</p>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:24px;">
       <div class="advantage-card"><div class="advantage-icon"><i class="fas fa-shield-alt"></i></div><div class="advantage-title">100% Sécurisée</div><div class="advantage-text">Vos investissements sont protégés avec les meilleures technologies de sécurité.</div></div>
-      <div class="advantage-card"><div class="advantage-icon"><i class="fas fa-check-circle"></i></div><div class="advantage-title">Fiable & Transparent</div><div class="advantage-text">Chaque transaction est tracée et vérifiable. Historique complet disponible.</div></div>
+      <div class="advantage-card"><div class="advantage-icon"><i class="fas fa-circle-check"></i></div><div class="advantage-title">Fiable & Transparent</div><div class="advantage-text">Chaque transaction est tracée et vérifiable. Historique complet disponible.</div></div>
       <div class="advantage-card"><div class="advantage-icon"><i class="fas fa-bolt"></i></div><div class="advantage-title">Retraits Rapides</div><div class="advantage-text">Retirez vos gains facilement via Mobile Money dans 16 pays africains.</div></div>
       <div class="advantage-card"><div class="advantage-icon"><i class="fas fa-headset"></i></div><div class="advantage-title">Support 24/7</div><div class="advantage-text">Notre équipe est disponible à toute heure pour vous accompagner.</div></div>
     </div>
