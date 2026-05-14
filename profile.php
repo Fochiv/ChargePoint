@@ -36,11 +36,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
-$countries = getDefaultCountries();
-function getDialCode(string $code): string {
-    $codes=['CM'=>'237','SN'=>'221','CI'=>'225','BJ'=>'229','BF'=>'226','CG'=>'242','CD'=>'243','GA'=>'241','GN'=>'224','GQ'=>'240','GW'=>'245','ML'=>'223','NE'=>'227','CF'=>'236','TD'=>'235','TG'=>'228'];
-    return $codes[$code] ?? '';
-}
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -55,22 +50,72 @@ function getDialCode(string $code): string {
 <?php renderAppLayout($user, 'profile'); ?>
 
 <div class="page-title">Mon Profil</div>
-<div class="page-subtitle">Gérez vos informations personnelles et paramètres de sécurité.</div>
 
 <?php if ($error): ?><div class="alert alert-danger alert-auto"><?= e($error) ?></div><?php endif; ?>
 <?php if ($success): ?><div class="alert alert-success alert-auto"><?= e($success) ?></div><?php endif; ?>
 
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;" class="profile-grid">
+<div style="max-width:600px;">
 
-  <!-- PROFILE INFO -->
-  <div class="card-custom">
+  <!-- Profile Header -->
+  <div class="card-custom" style="margin-bottom:16px;text-align:center;">
+    <div class="card-custom-body" style="padding:28px 24px;">
+      <div style="width:76px;height:76px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:800;margin:0 auto 12px;">
+        <?= strtoupper(substr($user['name'], 0, 1)) ?>
+      </div>
+      <div style="font-size:1.2rem;font-weight:700;margin-bottom:4px;"><?= e($user['name']) ?></div>
+      <div style="color:var(--text-muted);font-size:0.88rem;margin-bottom:10px;"><?= e($user['email']) ?></div>
+      <?= getStatusBadge($user['status']) ?>
+      <div style="margin-top:16px;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;">
+        <div style="background:var(--bg);border-radius:10px;padding:8px 14px;font-size:0.83rem;font-weight:600;">
+          <i class="fas fa-link" style="color:var(--primary)"></i> <?= e($user['referral_code']) ?>
+        </div>
+        <button data-copy="<?= e(SITE_URL . '/register.php?ref=' . $user['referral_code']) ?>" style="background:var(--primary);color:white;border:none;border-radius:10px;padding:8px 14px;font-size:0.82rem;font-weight:600;cursor:pointer;">
+          <i class="fas fa-copy"></i> Copier le lien
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Navigation Menu -->
+  <div class="card-custom" style="margin-bottom:16px;">
+    <div style="padding:12px 20px;border-bottom:1px solid var(--border);font-size:0.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;">Mes Services</div>
+    <a href="/deposit.php" class="profile-menu-row">
+      <span class="profile-menu-icon" style="background:rgba(16,185,129,0.12);color:var(--success);"><i class="fas fa-circle-plus"></i></span>
+      <span class="profile-menu-label">Faire un Dépôt</span>
+      <i class="fas fa-chevron-right profile-menu-arrow"></i>
+    </a>
+    <a href="/withdraw.php" class="profile-menu-row">
+      <span class="profile-menu-icon" style="background:rgba(59,130,246,0.12);color:var(--info);"><i class="fas fa-arrow-up-from-bracket"></i></span>
+      <span class="profile-menu-label">Retrait</span>
+      <i class="fas fa-chevron-right profile-menu-arrow"></i>
+    </a>
+    <a href="#wallet" onclick="document.getElementById('wallet').scrollIntoView({behavior:'smooth'});return false;" class="profile-menu-row">
+      <span class="profile-menu-icon" style="background:rgba(255,107,0,0.12);color:var(--primary);"><i class="fas fa-wallet"></i></span>
+      <span class="profile-menu-label">Mon Portefeuille</span>
+      <i class="fas fa-chevron-right profile-menu-arrow"></i>
+    </a>
+    <a href="#" class="profile-menu-row">
+      <span class="profile-menu-icon" style="background:rgba(0,136,204,0.12);color:#0088cc;"><i class="fab fa-telegram"></i></span>
+      <span class="profile-menu-label">Rejoindre Telegram</span>
+      <span style="font-size:0.72rem;background:rgba(245,158,11,0.12);color:var(--warning);padding:3px 8px;border-radius:6px;font-weight:600;margin-left:auto;margin-right:8px;">Bientôt</span>
+      <i class="fas fa-chevron-right profile-menu-arrow"></i>
+    </a>
+    <a href="/transactions.php" class="profile-menu-row">
+      <span class="profile-menu-icon" style="background:rgba(139,92,246,0.12);color:#8b5cf6;"><i class="fas fa-list"></i></span>
+      <span class="profile-menu-label">Historiques des transactions</span>
+      <i class="fas fa-chevron-right profile-menu-arrow"></i>
+    </a>
+    <a href="#password-section" onclick="document.getElementById('password-section').scrollIntoView({behavior:'smooth'});return false;" class="profile-menu-row" style="border-bottom:none;">
+      <span class="profile-menu-icon" style="background:rgba(245,158,11,0.12);color:var(--warning);"><i class="fas fa-lock"></i></span>
+      <span class="profile-menu-label">Modifier le mot de passe</span>
+      <i class="fas fa-chevron-right profile-menu-arrow"></i>
+    </a>
+  </div>
+
+  <!-- Personal Info -->
+  <div class="card-custom" style="margin-bottom:16px;">
     <div class="card-custom-header"><h5><i class="fas fa-user" style="color:var(--primary)"></i> Informations Personnelles</h5></div>
     <div class="card-custom-body">
-      <div style="text-align:center;margin-bottom:20px;">
-        <div class="profile-avatar"><?= strtoupper(substr($user['name'], 0, 1)) ?></div>
-        <div style="font-size:1.1rem;font-weight:700;"><?= e($user['name']) ?></div>
-        <div style="color:var(--text-muted);font-size:0.85rem;"><?= e($user['email']) ?></div>
-      </div>
       <form method="POST">
         <?= csrf_field() ?>
         <div class="form-group">
@@ -86,77 +131,89 @@ function getDialCode(string $code): string {
           <input type="text" class="form-control" value="<?= e($user['phone']) ?>" disabled style="background:var(--bg);">
         </div>
         <div class="form-group">
-          <label class="form-label">Code de parrainage</label>
-          <div style="display:flex;gap:8px;">
-            <input type="text" class="form-control" value="<?= e($user['referral_code']) ?>" id="my_ref_code" readonly>
-            <button type="button" class="btn-primary-custom" style="padding:8px 16px;white-space:nowrap;" data-copy="<?= e($user['referral_code']) ?>">Copier</button>
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Statut du compte</label>
-          <div><?= getStatusBadge($user['status']) ?></div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Date d'inscription</label>
+          <label class="form-label">Membre depuis</label>
           <input type="text" class="form-control" value="<?= date('d/m/Y', strtotime($user['created_at'])) ?>" disabled style="background:var(--bg);">
         </div>
-        <button type="submit" name="update_profile" class="btn-auth">Mettre à jour</button>
+        <button type="submit" name="update_profile" class="btn-auth"><i class="fas fa-save"></i> Mettre à jour</button>
       </form>
     </div>
   </div>
 
-  <div style="display:flex;flex-direction:column;gap:20px;">
-    <!-- PASSWORD -->
-    <div class="card-custom">
-      <div class="card-custom-header"><h5><i class="fas fa-lock" style="color:var(--primary)"></i> Changer le mot de passe</h5></div>
-      <div class="card-custom-body">
-        <form method="POST">
-          <?= csrf_field() ?>
-          <div class="form-group">
-            <label class="form-label">Mot de passe actuel</label>
-            <input type="password" name="current_password" class="form-control" placeholder="Votre mot de passe actuel" required>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Nouveau mot de passe</label>
-            <input type="password" name="new_password" class="form-control" placeholder="Minimum 6 caractères" required>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Confirmer le nouveau mot de passe</label>
-            <input type="password" name="confirm_new_password" class="form-control" placeholder="Répétez le nouveau mot de passe" required>
-          </div>
-          <button type="submit" name="change_password" class="btn-auth">Changer le mot de passe</button>
-        </form>
-      </div>
-    </div>
-
-    <!-- WALLET -->
-    <div class="card-custom">
-      <div class="card-custom-header"><h5><i class="fas fa-wallet" style="color:var(--primary)"></i> Mon Portefeuille</h5></div>
-      <div class="card-custom-body">
-        <?php if ($user['wallet_name']): ?>
-        <div class="wallet-card" style="margin-bottom:16px;">
-          <div class="wallet-label">Portefeuille</div>
-          <div style="font-size:1.1rem;font-weight:700;"><?= e($user['wallet_name']) ?></div>
-          <div style="margin-top:12px;font-size:0.85rem;opacity:0.7;"><?= e($user['wallet_country'] ?? '') ?> — <?= e($user['wallet_method'] ?? '') ?></div>
-          <div style="font-size:1rem;font-weight:600;margin-top:4px;"><?= e($user['wallet_phone'] ?? '') ?></div>
-          <?php if ($user['wallet_updated_at']): ?>
-          <div style="font-size:0.78rem;opacity:0.6;margin-top:8px;">Dernière modif: <?= date('d/m/Y', strtotime($user['wallet_updated_at'])) ?></div>
-          <?php endif; ?>
-        </div>
-        <?php else: ?>
-        <div class="alert alert-warning" style="margin-bottom:16px;">Aucun portefeuille configuré. Ajoutez-en un pour effectuer des retraits.</div>
+  <!-- Wallet -->
+  <div class="card-custom" id="wallet" style="margin-bottom:16px;">
+    <div class="card-custom-header"><h5><i class="fas fa-wallet" style="color:var(--primary)"></i> Mon Portefeuille</h5></div>
+    <div class="card-custom-body">
+      <?php if ($user['wallet_name']): ?>
+      <div class="wallet-card" style="margin-bottom:16px;">
+        <div class="wallet-label">Portefeuille</div>
+        <div style="font-size:1.1rem;font-weight:700;"><?= e($user['wallet_name']) ?></div>
+        <div style="margin-top:12px;font-size:0.85rem;opacity:0.7;"><?= e($user['wallet_country'] ?? '') ?> — <?= e($user['wallet_method'] ?? '') ?></div>
+        <div style="font-size:1rem;font-weight:600;margin-top:4px;"><?= e($user['wallet_phone'] ?? '') ?></div>
+        <?php if ($user['wallet_updated_at']): ?>
+        <div style="font-size:0.78rem;opacity:0.6;margin-top:8px;">Dernière modif : <?= date('d/m/Y', strtotime($user['wallet_updated_at'])) ?></div>
         <?php endif; ?>
-        <a href="/withdraw.php#wallet" class="btn-primary-custom" style="width:100%;justify-content:center;">
-          <i class="fas fa-pen-to-square"></i> Modifier le Portefeuille
-        </a>
       </div>
+      <?php else: ?>
+      <div class="alert alert-warning" style="margin-bottom:16px;">Aucun portefeuille configuré. Ajoutez-en un pour effectuer des retraits.</div>
+      <?php endif; ?>
+      <a href="/withdraw.php#wallet" class="btn-primary-custom" style="width:100%;justify-content:center;">
+        <i class="fas fa-pen-to-square"></i> Modifier le Portefeuille
+      </a>
     </div>
   </div>
+
+  <!-- Password -->
+  <div class="card-custom" id="password-section" style="margin-bottom:16px;">
+    <div class="card-custom-header"><h5><i class="fas fa-lock" style="color:var(--primary)"></i> Changer le mot de passe</h5></div>
+    <div class="card-custom-body">
+      <form method="POST">
+        <?= csrf_field() ?>
+        <div class="form-group">
+          <label class="form-label">Mot de passe actuel</label>
+          <input type="password" name="current_password" class="form-control" placeholder="Votre mot de passe actuel" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nouveau mot de passe</label>
+          <input type="password" name="new_password" class="form-control" placeholder="Minimum 6 caractères" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirmer le nouveau mot de passe</label>
+          <input type="password" name="confirm_new_password" class="form-control" placeholder="Répétez le nouveau mot de passe" required>
+        </div>
+        <button type="submit" name="change_password" class="btn-auth"><i class="fas fa-key"></i> Changer le mot de passe</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Logout -->
+  <div class="card-custom" style="margin-bottom:24px;overflow:hidden;">
+    <a href="/logout.php" class="profile-menu-row" style="border-bottom:none;">
+      <span class="profile-menu-icon" style="background:rgba(239,68,68,0.12);color:var(--danger);"><i class="fas fa-right-from-bracket"></i></span>
+      <span class="profile-menu-label" style="color:var(--danger);font-weight:700;">Déconnexion</span>
+      <i class="fas fa-chevron-right profile-menu-arrow" style="color:var(--danger);"></i>
+    </a>
+  </div>
+
 </div>
 
 <?php renderBottomNav('profile'); ?>
 <style>
-@media(max-width:767px){.profile-grid{grid-template-columns:1fr!important;}}
+.profile-menu-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.18s;
+  color: var(--text);
+  text-decoration: none;
+}
+.profile-menu-row:hover { background: var(--bg); }
+.profile-menu-icon {
+  width: 40px; height: 40px; border-radius: 11px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; flex-shrink: 0;
+}
+.profile-menu-label { flex: 1; font-weight: 500; font-size: 0.92rem; }
+.profile-menu-arrow { color: var(--text-muted); font-size: 0.78rem; }
 </style>
 <script src="/assets/js/main.js"></script>
 </body>

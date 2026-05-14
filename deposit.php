@@ -137,32 +137,44 @@ if (empty($countries)) $countries = getDefaultCountries();
   </div>
 </div>
 
-<?php renderBottomNav('deposit'); ?>
-
 <script>
 function updateOperators(select) {
-  const val = select.value;
   const opt = select.options[select.selectedIndex];
-  const operators = JSON.parse(opt.dataset.operators || '[]');
-  const currency = opt.dataset.currency || 'XOF';
-  const name = opt.dataset.name || '';
+  const operators = opt ? JSON.parse(opt.getAttribute('data-operators') || '[]') : [];
+  const currency = opt ? (opt.getAttribute('data-currency') || 'XOF') : 'XOF';
+  const name = opt ? (opt.getAttribute('data-name') || '') : '';
   const opSel = document.getElementById('operator');
   opSel.innerHTML = '<option value="">Sélectionner l\'opérateur</option>';
-  operators.forEach(op => {
+  operators.forEach(function(op) {
     const o = document.createElement('option');
     o.value = op; o.textContent = op;
     opSel.appendChild(o);
   });
   document.getElementById('currency').value = currency;
-  document.getElementById('phone_group').style.display = 'block';
-  document.getElementById('recap_country').textContent = name;
-  // Hide phone for Wave
-  opSel.addEventListener('change', function() {
-    const isWave = this.value.toLowerCase().includes('wave');
-    document.getElementById('phone').required = !isWave;
-    document.getElementById('recap_operator').textContent = this.value;
-  });
+  document.getElementById('phone_group').style.display = select.value ? 'block' : 'none';
+  document.getElementById('recap_country').textContent = name || '—';
+  document.getElementById('recap_operator').textContent = '—';
+  if (operators.length === 1) {
+    opSel.value = operators[0];
+    applyOperatorChange(operators[0]);
+  }
 }
+
+function applyOperatorChange(val) {
+  const isWave = val.toLowerCase().includes('wave');
+  const phoneInput = document.getElementById('phone');
+  if (phoneInput) phoneInput.required = !isWave;
+  document.getElementById('recap_operator').textContent = val || '—';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const opSel = document.getElementById('operator');
+  if (opSel) {
+    opSel.addEventListener('change', function() {
+      applyOperatorChange(this.value);
+    });
+  }
+});
 
 document.getElementById('deposit_amount')?.addEventListener('input', function() {
   const v = parseInt(this.value);
@@ -275,6 +287,5 @@ function submitOTPDirect(e) {
   });
 }
 </script>
-<script src="/assets/js/main.js"></script>
-</body>
-</html>
+
+<?php renderBottomNav('deposit'); ?>

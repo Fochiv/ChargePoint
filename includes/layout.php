@@ -15,6 +15,14 @@ function renderHead(string $title = 'ChargePoint'): void {
 function renderAppLayout(array $user, string $activePage = ''): void {
     $notifCount = countUnreadNotifications($user['id']);
     $active = fn($p) => $activePage === $p ? 'active' : '';
+    $statusHtml = $user['status'] === 'active'
+        ? '<span style="color:var(--success);font-size:0.78rem;">● Compte actif</span>'
+        : '<span style="color:var(--danger);font-size:0.78rem;">● Compte suspendu</span>';
+    $firstName = e(explode(' ', $user['name'])[0]);
+    $initial   = strtoupper(substr($user['name'], 0, 1));
+    $notifBadge = $notifCount > 0
+        ? '<span class="notif-badge">' . ($notifCount > 9 ? '9+' : $notifCount) . '</span>'
+        : '';
     echo '
 <div class="app-layout">
   <aside class="sidebar">
@@ -38,22 +46,16 @@ function renderAppLayout(array $user, string $activePage = ''): void {
 
   <main class="main-content">
     <div class="app-header">
-      <div>
-        <div class="app-header-greeting">Bonjour, <span>' . e(explode(' ', $user['name'])[0]) . '</span> <i class="fas fa-hand" style="color:var(--primary)"></i></div>
-        <div style="font-size:0.8rem;color:var(--text-muted)">'
-        . ($user['status'] === 'active'
-            ? '<span style="color:var(--success)">● Compte actif</span>'
-            : '<span style="color:var(--danger)">● Compte suspendu</span>')
-        . '</div>
-      </div>
+      <a href="/dashboard.php" class="app-header-brand">
+        <img src="/assets/logo.jpg" alt="Logo" style="width:32px;height:32px;border-radius:8px;object-fit:cover;flex-shrink:0;">
+        <span><span style="color:var(--primary);font-weight:800;">Charge</span><span style="color:#9ca3af;font-weight:800;">Point</span></span>
+      </a>
+      <div class="app-header-greeting">Bonjour, <span>' . $firstName . '</span><br>' . $statusHtml . '</div>
       <div class="app-header-right">
         <a href="/notifications.php" class="notif-btn">
-          <i class="fas fa-bell"></i>'
-        . ($notifCount > 0 ? '<span class="notif-badge">' . ($notifCount > 9 ? '9+' : $notifCount) . '</span>' : '')
-        . '</a>
-        <a href="/profile.php" style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;">'
-        . strtoupper(substr($user['name'], 0, 1))
-        . '</a>
+          <i class="fas fa-bell"></i>' . $notifBadge . '
+        </a>
+        <a href="/profile.php" style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;flex-shrink:0;">' . $initial . '</a>
       </div>
     </div>';
 }

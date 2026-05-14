@@ -2,7 +2,7 @@
 define('ASHTECH_API_KEY', 'ak_83adbb920ef3efd424561f70d6b76e7bf0ed91cce302973a');
 define('ASHTECH_BASE_URL', 'https://ashtechpay.top');
 define('DB_PATH', __DIR__ . '/../database.sqlite');
-define('SITE_URL', (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost'));
+define('SITE_URL', 'https://chargepoint.zya.me');
 define('SITE_NAME', 'ChargePoint');
 define('WITHDRAWAL_FEE_PERCENT', 11);
 define('REFERRAL_LEVEL1', 20);
