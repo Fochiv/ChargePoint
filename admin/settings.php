@@ -97,7 +97,7 @@ foreach ($rows as $r) $settings[$r['key']] = $r['value'];
           <label class="form-label">Montant minimum de retrait (FCFA)</label>
           <div class="input-with-icon">
             <i class="fas fa-arrow-down"></i>
-            <input type="number" name="min_withdrawal" class="form-control" value="<?= e($settings['min_withdrawal'] ?? '1000') ?>" min="0" required>
+            <input type="number" name="min_withdrawal" class="form-control" value="<?= e($settings['min_withdrawal'] ?? '1200') ?>" min="0" required>
           </div>
         </div>
         <div class="form-group">
@@ -111,7 +111,7 @@ foreach ($rows as $r) $settings[$r['key']] = $r['value'];
           <label class="form-label">Frais de retrait (%)</label>
           <div class="input-with-icon">
             <i class="fas fa-percent"></i>
-            <input type="number" name="withdrawal_fee" class="form-control" value="<?= e($settings['withdrawal_fee'] ?? '11') ?>" min="0" max="100" step="0.1" required>
+            <input type="number" name="withdrawal_fee" class="form-control" value="<?= e($settings['withdrawal_fee'] ?? '15') ?>" min="0" max="100" step="0.1" required>
           </div>
           <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">Déduit automatiquement du montant de retrait</div>
         </div>

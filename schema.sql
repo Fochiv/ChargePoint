@@ -175,9 +175,9 @@ INSERT OR IGNORE INTO settings (key, value) VALUES
     ('referral_level1',  '20'),
     ('referral_level2',  '5'),
     ('referral_level3',  '2'),
-    ('min_withdrawal',   '1000'),
+    ('min_withdrawal',   '1200'),
     ('max_withdrawal',   '5000000'),
-    ('withdrawal_fee',   '11'),
+    ('withdrawal_fee',   '15'),
     ('maintenance_mode', '0');
 
 -- ============================================================

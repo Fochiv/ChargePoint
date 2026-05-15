@@ -65,7 +65,7 @@ $pendingWd = $db->query("SELECT t.*, u.name as user_name, u.phone as user_phone 
   </div>
 
   <!-- ALERTS -->
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px;">
+  <div class="admin-alerts-grid">
     <div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:16px;padding:20px;">
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
         <i class="fas fa-clock" style="color:var(--warning);font-size:1.4rem;"></i>
@@ -173,7 +173,12 @@ $pendingWd = $db->query("SELECT t.*, u.name as user_name, u.phone as user_phone 
 </div>
 
 <style>
-@media(max-width:991px){.admin-stats,.chart-grid,.recent-grid{grid-template-columns:1fr!important;}}
+@media(max-width:1199px){.admin-stats{grid-template-columns:repeat(2,1fr)!important;}}
+@media(max-width:991px){.admin-stats{grid-template-columns:repeat(2,1fr)!important;}.chart-grid,.recent-grid{grid-template-columns:1fr!important;}}
+@media(max-width:575px){.admin-stats{grid-template-columns:1fr!important;}}
+.admin-alerts-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px;}
+@media(max-width:991px){.admin-alerts-grid{grid-template-columns:1fr!important;}}
+@media(max-width:767px){.admin-alerts-grid{grid-template-columns:1fr!important;}}
 </style>
 <script>
 const ctx = document.getElementById('depositsChart')?.getContext('2d');

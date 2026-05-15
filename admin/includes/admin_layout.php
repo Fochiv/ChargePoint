@@ -24,7 +24,7 @@ function renderAdminSidebar(string $activePage = ''): void {
     <img src="/assets/logo.jpg" alt="Logo" style="width:34px;height:34px;border-radius:8px;object-fit:cover;flex-shrink:0;">
     <div><div style="font-weight:800;"><span style="color:var(--primary);">Charge</span><span style="color:rgba(255,255,255,0.6);">Point</span></div><div style="font-size:0.7rem;color:rgba(255,255,255,0.4);margin-top:1px;">Administration</div></div>
   </div>
-  <nav class="admin-sidebar-nav">
+  <nav class="admin-sidebar-nav" style="display:flex;flex-direction:column;">
     <a href="/admin/dashboard.php" class="admin-nav-item <?= $activePage==='dashboard'?'active':'' ?>"><i class="fas fa-th-large" style="width:20px"></i> Tableau de Bord</a>
     <a href="/admin/users.php" class="admin-nav-item <?= $activePage==='users'?'active':'' ?>"><i class="fas fa-users" style="width:20px"></i> Utilisateurs</a>
     <a href="/admin/orders.php" class="admin-nav-item <?= $activePage==='orders'?'active':'' ?>"><i class="fas fa-crown" style="width:20px"></i> Commandes</a>
@@ -40,9 +40,9 @@ function renderAdminSidebar(string $activePage = ''): void {
     <a href="/admin/balances.php" class="admin-nav-item <?= $activePage==='balances'?'active':'' ?>"><i class="fas fa-wallet" style="width:20px"></i> Soldes</a>
     <a href="/admin/vip_plans.php" class="admin-nav-item <?= $activePage==='vip_plans'?'active':'' ?>"><i class="fas fa-gem" style="width:20px"></i> Plans VIP</a>
     <a href="/admin/settings.php" class="admin-nav-item <?= $activePage==='settings'?'active':'' ?>"><i class="fas fa-cog" style="width:20px"></i> Paramètres</a>
-    <div style="padding:16px 24px;margin-top:auto;">
+    <div style="margin-top:auto;padding:16px 24px;">
       <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:16px;">
-        <a href="/admin/logout.php" class="admin-nav-item" style="color:rgba(255,100,100,0.8);padding:10px 0;">
+        <a href="/admin/logout.php" class="admin-nav-item" style="color:rgba(255,100,100,0.9);padding:10px 0;border-radius:8px;">
           <i class="fas fa-right-from-bracket" style="width:20px"></i> Déconnexion
         </a>
       </div>

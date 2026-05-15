@@ -98,7 +98,10 @@ $ref = $_GET['ref'] ?? '';
       <?php foreach ($plans as $i => $plan): ?>
       <div class="vip-card <?= $i === 3 ? 'popular' : '' ?>">
         <?php if ($i === 3): ?><span class="vip-badge">🔥 Populaire</span><?php endif; ?>
-        <div class="vip-name"><?= e($plan['name']) ?></div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <img src="/assets/logo.jpg" alt="ChargePoint" style="width:36px;height:36px;border-radius:8px;object-fit:cover;flex-shrink:0;">
+          <div class="vip-name" style="margin-bottom:0;"><?= e($plan['name']) ?></div>
+        </div>
         <div class="vip-amount"><?= formatAmount($plan['amount']) ?></div>
         <div class="vip-gain">+<?= formatAmount($plan['daily_gain']) ?> / jour</div>
         <div class="vip-details">
