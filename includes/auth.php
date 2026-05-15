@@ -75,8 +75,8 @@ function loginUser(string $identifier, string $password): array {
         return ['success' => false, 'message' => 'Identifiants incorrects.'];
     }
 
-    $db->prepare("UPDATE users SET failed_login_attempts = 0, locked_until = NULL, last_login = datetime('now') WHERE id = ?")
-       ->execute([$user['id']]);
+    $db->prepare("UPDATE users SET failed_login_attempts = 0, locked_until = NULL, last_login = ? WHERE id = ?")
+       ->execute([date('Y-m-d H:i:s'), $user['id']]);
 
     startSession();
     session_regenerate_id(true);

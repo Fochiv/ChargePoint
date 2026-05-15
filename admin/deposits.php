@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Transaction introuvable.';
     } else {
         if ($action === 'validate' && $tx['status'] !== 'success') {
-            $db->prepare("UPDATE transactions SET status='success', updated_at=datetime('now') WHERE id=?")->execute([$txId]);
+            $db->prepare("UPDATE transactions SET status='success', updated_at=? WHERE id=?")->execute([date('Y-m-d H:i:s'), $txId]);
             $db->prepare("UPDATE users SET balance=balance+?, has_deposit=1 WHERE id=?")->execute([$tx['amount'], $tx['user_id']]);
             processReferralCommissions($tx['user_id'], $tx['amount']);
             if ($tx['plan_id']) {
@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $success = "Dépôt de " . formatAmount($tx['amount']) . " validé et crédité.";
         } elseif ($action === 'reject' && $tx['status'] === 'pending') {
             $reason = trim($_POST['reason'] ?? 'Dépôt rejeté par l\'administrateur.');
-            $db->prepare("UPDATE transactions SET status='rejected', reject_reason=?, updated_at=datetime('now') WHERE id=?")->execute([$reason, $txId]);
+            $db->prepare("UPDATE transactions SET status='rejected', reject_reason=?, updated_at=? WHERE id=?")->execute([$reason, date('Y-m-d H:i:s'), $txId]);
             addNotification($tx['user_id'], "Votre dépôt de " . formatAmount($tx['amount']) . " a été rejeté. Motif: $reason.");
             $success = "Dépôt rejeté.";
         }

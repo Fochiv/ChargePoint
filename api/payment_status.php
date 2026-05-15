@@ -29,7 +29,7 @@ if ($tx['ashtech_transaction_id']) {
     
     if ($apiStatus === 'success') {
         if ($tx['status'] !== 'success') {
-            $db->prepare("UPDATE transactions SET status='success', updated_at=datetime('now') WHERE id=?")->execute([$tx['id']]);
+            $db->prepare("UPDATE transactions SET status='success', updated_at=? WHERE id=?")->execute([date('Y-m-d H:i:s'), $tx['id']]);
             $db->prepare("UPDATE users SET balance=balance+?, has_deposit=1 WHERE id=?")->execute([$tx['amount'], $tx['user_id']]);
             if ($tx['plan_id']) activateInvestmentPlan($tx['user_id'], $tx['plan_id'], $tx['amount']);
             processReferralCommissions($tx['user_id'], $tx['amount']);
@@ -37,7 +37,7 @@ if ($tx['ashtech_transaction_id']) {
         }
         echo json_encode(['status' => 'success']);
     } elseif ($apiStatus === 'failed') {
-        $db->prepare("UPDATE transactions SET status='failed', updated_at=datetime('now') WHERE id=?")->execute([$tx['id']]);
+        $db->prepare("UPDATE transactions SET status='failed', updated_at=? WHERE id=?")->execute([date('Y-m-d H:i:s'), $tx['id']]);
         echo json_encode(['status' => 'failed']);
     } else {
         echo json_encode(['status' => 'pending']);

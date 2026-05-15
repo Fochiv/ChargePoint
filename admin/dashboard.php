@@ -15,9 +15,10 @@ $totalWithdrawn = $db->query("SELECT COALESCE(SUM(amount),0) FROM transactions W
 $totalGains = $db->query("SELECT COALESCE(SUM(amount),0) FROM transactions WHERE type='daily_gain'")->fetchColumn();
 $pendingWithdrawals = $db->query("SELECT COUNT(*) FROM transactions WHERE type='withdrawal' AND status='pending'")->fetchColumn();
 $pendingAmount = $db->query("SELECT COALESCE(SUM(amount),0) FROM transactions WHERE type='withdrawal' AND status='pending'")->fetchColumn();
-$failedToday = $db->query("SELECT COUNT(*) FROM transactions WHERE type='deposit' AND status='failed' AND date(created_at)=date('now')")->fetchColumn();
+$today = date('Y-m-d');
+$s = $db->prepare("SELECT COUNT(*) FROM transactions WHERE type='deposit' AND status='failed' AND DATE(created_at)=?"); $s->execute([$today]); $failedToday = $s->fetchColumn();
 $activeInvestments = $db->query("SELECT COUNT(*) FROM investments WHERE status='active'")->fetchColumn();
-$newUsersToday = $db->query("SELECT COUNT(*) FROM users WHERE date(created_at)=date('now')")->fetchColumn();
+$s = $db->prepare("SELECT COUNT(*) FROM users WHERE DATE(created_at)=?"); $s->execute([$today]); $newUsersToday = $s->fetchColumn();
 
 // Last 7 days deposits
 $last7Days = [];
@@ -106,8 +107,8 @@ $pendingWd = $db->query("SELECT t.*, u.name as user_name, u.phone as user_phone 
       <div class="card-custom-header"><h5><i class="fas fa-bolt" style="color:var(--primary)"></i> Activité récente</h5></div>
       <div class="card-custom-body">
         <?php
-        $todayDeposit = $db->query("SELECT COALESCE(SUM(amount),0) FROM transactions WHERE type='deposit' AND status='success' AND date(created_at)=date('now')")->fetchColumn();
-        $todayWithdrawal = $db->query("SELECT COALESCE(SUM(amount),0) FROM transactions WHERE type='withdrawal' AND (status='success' OR status='pending') AND date(created_at)=date('now')")->fetchColumn();
+        $sd = $db->prepare("SELECT COALESCE(SUM(amount),0) FROM transactions WHERE type='deposit' AND status='success' AND DATE(created_at)=?"); $sd->execute([$today]); $todayDeposit = $sd->fetchColumn();
+        $sw = $db->prepare("SELECT COALESCE(SUM(amount),0) FROM transactions WHERE type='withdrawal' AND (status='success' OR status='pending') AND DATE(created_at)=?"); $sw->execute([$today]); $todayWithdrawal = $sw->fetchColumn();
         ?>
         <div class="info-row"><span class="info-label">Dépôts aujourd'hui</span><span class="info-value" style="color:var(--success)"><?= formatAmount($todayDeposit) ?></span></div>
         <div class="info-row"><span class="info-label">Retraits demandés</span><span class="info-value" style="color:var(--warning)"><?= formatAmount($todayWithdrawal) ?></span></div>

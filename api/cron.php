@@ -23,7 +23,7 @@ foreach ($investments as $inv) {
        ->execute([$inv['user_id'], "Gain journalier " . $inv['plan_id'], $inv['daily_gain']]);
     $newRemaining = $inv['days_remaining'] - 1;
     if ($newRemaining <= 0) {
-        $db->prepare("UPDATE investments SET days_remaining=0, status='completed', completed_at=datetime('now') WHERE id=?")->execute([$inv['id']]);
+        $db->prepare("UPDATE investments SET days_remaining=0, status='completed', completed_at=? WHERE id=?")->execute([date('Y-m-d H:i:s'), $inv['id']]);
         addNotification($inv['user_id'], "Votre plan d'investissement a atteint sa durée maximale et est maintenant complété !");
     } else {
         $db->prepare("UPDATE investments SET days_remaining=? WHERE id=?")->execute([$newRemaining, $inv['id']]);

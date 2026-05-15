@@ -10,18 +10,26 @@ $db = getDB();
 
 $success = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $stmt = $db->prepare("INSERT INTO settings (key, value) VALUES (?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value");
+    $upsert = function(PDO $db, string $key, string $value): void {
+        $s = $db->prepare("SELECT key FROM settings WHERE key=?");
+        $s->execute([$key]);
+        if ($s->fetch()) {
+            $db->prepare("UPDATE settings SET value=? WHERE key=?")->execute([$value, $key]);
+        } else {
+            $db->prepare("INSERT INTO settings (key, value) VALUES (?,?)")->execute([$key, $value]);
+        }
+    };
     $simpleFields = ['referral_level1','referral_level2','referral_level3','min_deposit','max_deposit','min_withdrawal','max_withdrawal','withdrawal_fee'];
     foreach ($simpleFields as $field) {
         if (isset($_POST[$field])) {
-            $stmt->execute([$field, trim($_POST[$field])]);
+            $upsert($db, $field, trim($_POST[$field]));
         }
     }
-    $stmt->execute(['maintenance_mode', isset($_POST['maintenance_mode']) ? '1' : '0']);
+    $upsert($db, 'maintenance_mode', isset($_POST['maintenance_mode']) ? '1' : '0');
     $activeCountries = isset($_POST['active_countries']) && is_array($_POST['active_countries'])
         ? json_encode(array_values($_POST['active_countries']))
         : json_encode([]);
-    $stmt->execute(['active_countries', $activeCountries]);
+    $upsert($db, 'active_countries', $activeCountries);
     $success = 'Paramètres enregistrés avec succès.';
 }
 

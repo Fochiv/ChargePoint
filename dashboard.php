@@ -17,8 +17,8 @@ $recentTx = $db->prepare("SELECT * FROM transactions WHERE user_id = ? ORDER BY 
 $recentTx->execute([$user['id']]);
 $transactions = $recentTx->fetchAll();
 
-$todayGains = $db->prepare("SELECT COALESCE(SUM(amount),0) FROM transactions WHERE user_id = ? AND type='daily_gain' AND date(created_at)=date('now')");
-$todayGains->execute([$user['id']]);
+$todayGains = $db->prepare("SELECT COALESCE(SUM(amount),0) FROM transactions WHERE user_id = ? AND type='daily_gain' AND DATE(created_at)=?");
+$todayGains->execute([$user['id'], date('Y-m-d')]);
 $todayGainsTotal = $todayGains->fetchColumn();
 
 $refCount = $db->prepare("SELECT COUNT(*) FROM users WHERE referred_by = ?");

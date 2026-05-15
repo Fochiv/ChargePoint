@@ -25,8 +25,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $wPhone = trim($_POST['wallet_phone'] ?? '');
         if (!$wName || !$wCountry || !$wMethod || !$wPhone) { $error = 'Tous les champs du portefeuille sont requis.'; }
         else {
-            $db->prepare("UPDATE users SET wallet_name=?, wallet_country=?, wallet_method=?, wallet_phone=?, wallet_updated_at=datetime('now') WHERE id=?")
-               ->execute([$wName, $wCountry, $wMethod, $wPhone, $user['id']]);
+            $db->prepare("UPDATE users SET wallet_name=?, wallet_country=?, wallet_method=?, wallet_phone=?, wallet_updated_at=? WHERE id=?")
+               ->execute([$wName, $wCountry, $wMethod, $wPhone, date('Y-m-d H:i:s'), $user['id']]);
             $success = 'Portefeuille mis à jour avec succès.';
             $user = getCurrentUser();
         }

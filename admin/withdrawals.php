@@ -20,13 +20,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$tx) { $error = 'Transaction introuvable.'; }
     else {
         if ($action === 'validate') {
-            $db->prepare("UPDATE transactions SET status='success', updated_at=datetime('now') WHERE id=?")->execute([$txId]);
+            $db->prepare("UPDATE transactions SET status='success', updated_at=? WHERE id=?")->execute([date('Y-m-d H:i:s'), $txId]);
             addNotification($tx['user_id'], "Votre retrait de " . formatAmount($tx['amount']) . " a été validé et traité.");
             $success = "Retrait de " . formatAmount($tx['amount']) . " validé.";
         } elseif ($action === 'reject') {
             $reason = trim($_POST['reason'] ?? 'Retrait rejeté par l\'administrateur.');
             $db->prepare("UPDATE users SET balance=balance+? WHERE id=?")->execute([$tx['amount'], $tx['user_id']]);
-            $db->prepare("UPDATE transactions SET status='rejected', reject_reason=?, updated_at=datetime('now') WHERE id=?")->execute([$reason, $txId]);
+            $db->prepare("UPDATE transactions SET status='rejected', reject_reason=?, updated_at=? WHERE id=?")->execute([$reason, date('Y-m-d H:i:s'), $txId]);
             addNotification($tx['user_id'], "Votre retrait de " . formatAmount($tx['amount']) . " a été rejeté. Motif: $reason. Votre solde a été remboursé.");
             $success = "Retrait rejeté. Le solde a été remboursé.";
         }

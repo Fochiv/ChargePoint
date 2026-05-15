@@ -16,9 +16,11 @@ function renderAdminHead(string $title = 'Admin'): void { ?>
 
 function renderAdminSidebar(string $activePage = ''): void {
     $pending = getDB()->query("SELECT COUNT(*) FROM transactions WHERE type='withdrawal' AND status='pending'")->fetchColumn();
-    $failed = getDB()->query("SELECT COUNT(*) FROM transactions WHERE type='deposit' AND status='failed' AND date(created_at)=date('now')")->fetchColumn();
+    $today = date('Y-m-d');
+    $stmt = getDB()->prepare("SELECT COUNT(*) FROM transactions WHERE type='deposit' AND status='failed' AND DATE(created_at)=?");
+    $stmt->execute([$today]);
+    $failed = $stmt->fetchColumn();
 ?>
-<div style="display:flex;">
 <aside class="admin-sidebar">
   <div class="admin-sidebar-logo" style="display:flex;align-items:center;gap:10px;">
     <img src="/assets/logo.jpg" alt="Logo" style="width:34px;height:34px;border-radius:8px;object-fit:cover;flex-shrink:0;">
@@ -75,7 +77,7 @@ function renderAdminTopbar(string $title, string $subtitle = ''): void { ?>
 <?php }
 
 function renderAdminFooter(): void { ?>
-</div></div>
+</div>
 <script src="/assets/js/main.js"></script>
 </body></html>
 <?php }
