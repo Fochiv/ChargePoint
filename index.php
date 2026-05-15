@@ -164,11 +164,11 @@ $ref = $_GET['ref'] ?? '';
         </div>
         <p style="margin-top:12px;font-size:0.88rem;max-width:280px;">Votre partenaire d'investissement de confiance pour construire un avenir financier solide en Afrique.</p>
         <div style="margin-top:20px;">
-          <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
-          <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
-          <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
-          <a href="#" class="social-link"><i class="fab fa-whatsapp"></i></a>
-          <a href="#" class="social-link"><i class="fab fa-telegram"></i></a>
+          <a href="https://t.me/+_LljrVRXwGRlYWU0" target="_blank" class="social-link"><i class="fab fa-facebook-f"></i></a>
+          <a href="https://t.me/+_LljrVRXwGRlYWU0" target="_blank" class="social-link"><i class="fab fa-twitter"></i></a>
+          <a href="https://t.me/+_LljrVRXwGRlYWU0" target="_blank" class="social-link"><i class="fab fa-instagram"></i></a>
+          <a href="https://t.me/+_LljrVRXwGRlYWU0" target="_blank" class="social-link"><i class="fab fa-whatsapp"></i></a>
+          <a href="https://t.me/+_LljrVRXwGRlYWU0" target="_blank" class="social-link"><i class="fab fa-telegram"></i></a>
         </div>
       </div>
       <div>
@@ -187,8 +187,8 @@ $ref = $_GET['ref'] ?? '';
       <div>
         <div class="footer-title">Contact</div>
         <a href="mailto:support@chargepoint.zya.me" class="footer-link"><i class="fas fa-envelope"></i> support@chargepoint.zya.me</a>
-        <a href="#" class="footer-link"><i class="fab fa-whatsapp"></i> WhatsApp</a>
-        <a href="#" class="footer-link"><i class="fab fa-telegram"></i> Telegram</a>
+        <a href="https://t.me/+_LljrVRXwGRlYWU0" target="_blank" class="footer-link"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+        <a href="https://t.me/+_LljrVRXwGRlYWU0" target="_blank" class="footer-link"><i class="fab fa-telegram"></i> Telegram</a>
       </div>
     </div>
     <div class="footer-bottom">

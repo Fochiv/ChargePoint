@@ -94,10 +94,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <span class="profile-menu-label">Mon Portefeuille</span>
       <i class="fas fa-chevron-right profile-menu-arrow"></i>
     </a>
-    <a href="#" class="profile-menu-row">
+    <a href="https://t.me/+_LljrVRXwGRlYWU0" target="_blank" class="profile-menu-row">
       <span class="profile-menu-icon" style="background:rgba(0,136,204,0.12);color:#0088cc;"><i class="fab fa-telegram"></i></span>
-      <span class="profile-menu-label">Rejoindre Telegram</span>
-      <span style="font-size:0.72rem;background:rgba(245,158,11,0.12);color:var(--warning);padding:3px 8px;border-radius:6px;font-weight:600;margin-left:auto;margin-right:8px;">Bientôt</span>
+      <span class="profile-menu-label">Nous rejoindre sur Telegram</span>
       <i class="fas fa-chevron-right profile-menu-arrow"></i>
     </a>
     <a href="/transactions.php" class="profile-menu-row">

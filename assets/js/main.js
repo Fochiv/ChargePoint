@@ -303,6 +303,15 @@ function confirmAction(message, callback) {
     if (confirm(message)) callback();
 }
 
+// ===== USER SIDEBAR TOGGLE (MOBILE) =====
+function toggleUserSidebar() {
+    const sidebar = document.getElementById('user-sidebar');
+    const overlay = document.getElementById('user-sidebar-overlay');
+    if (!sidebar) return;
+    const isOpen = sidebar.classList.toggle('sidebar-open');
+    if (overlay) overlay.style.display = isOpen ? 'block' : 'none';
+}
+
 // ===== ADMIN SIDEBAR TOGGLE (MOBILE) =====
 function toggleAdminSidebar() {
     const sidebar = document.querySelector('.admin-sidebar');

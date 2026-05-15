@@ -26,7 +26,8 @@ function renderAppLayout(array $user, string $activePage = ''): void {
         : '';
     echo '
 <div class="app-layout">
-  <aside class="sidebar">
+  <div id="user-sidebar-overlay" class="user-sidebar-overlay" onclick="toggleUserSidebar()"></div>
+  <aside class="sidebar" id="user-sidebar">
     <div class="sidebar-logo">
       <img src="/assets/logo.jpg" alt="Logo" style="width:38px;height:38px;border-radius:10px;object-fit:cover;flex-shrink:0;">
       <span><span style="color:var(--primary);font-weight:800;">Charge</span><span style="color:#9ca3af;font-weight:800;">Point</span></span>
@@ -47,6 +48,7 @@ function renderAppLayout(array $user, string $activePage = ''): void {
 
   <main class="main-content">
     <div class="app-header">
+      <button class="user-hamburger" onclick="toggleUserSidebar()" aria-label="Menu"><i class="fas fa-bars"></i></button>
       <a href="/dashboard.php" class="app-header-brand">
         <img src="/assets/logo.jpg" alt="Logo" style="width:32px;height:32px;border-radius:8px;object-fit:cover;flex-shrink:0;">
         <span><span style="color:var(--primary);font-weight:800;">Charge</span><span style="color:#9ca3af;font-weight:800;">Point</span></span>

@@ -191,5 +191,5 @@ foreach ($rows as $r) $settings[$r['key']] = $r['value'];
   </div>
 </form>
 </div>
-<style>@media(max-width:767px){.settings-grid{grid-template-columns:1fr!important;}}</style>
+<style>@media(max-width:991px){.settings-grid{grid-template-columns:1fr!important;}}</style>
 <?php renderAdminFooter(); ?>
