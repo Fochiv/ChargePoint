@@ -156,6 +156,52 @@ function activateInvestmentPlan(int $userId, int $planId, float $amount): void {
     addNotification($userId, "Votre plan {$plan['name']} a été activé ! Gains journaliers : " . formatAmount($plan['daily_gain']));
 }
 
+function processUserDailyGains(int $userId): array {
+    $db = getDB();
+    $today = date('Y-m-d');
+
+    $stmt = $db->prepare("SELECT i.*, p.name as plan_name FROM investments i JOIN vip_plans p ON i.plan_id=p.id WHERE i.user_id=? AND i.status='active' AND i.days_remaining>0");
+    $stmt->execute([$userId]);
+    $investments = $stmt->fetchAll();
+
+    if (empty($investments)) {
+        return ['processed' => 0, 'total' => 0, 'already_done' => false, 'no_vip' => true];
+    }
+
+    $alreadyDone = false;
+    $processed = 0;
+    $totalGain = 0.0;
+    $now = date('Y-m-d H:i:s');
+
+    foreach ($investments as $inv) {
+        $check = $db->prepare("SELECT id FROM transactions WHERE user_id=? AND type='daily_gain' AND DATE(created_at)=? AND description LIKE ?");
+        $check->execute([$userId, $today, '%' . $inv['plan_name'] . '%']);
+        if ($check->fetch()) {
+            $alreadyDone = true;
+            continue;
+        }
+
+        $db->prepare("UPDATE users SET balance=balance+?, total_earnings=total_earnings+? WHERE id=?")
+           ->execute([$inv['daily_gain'], $inv['daily_gain'], $userId]);
+        $db->prepare("INSERT INTO transactions (user_id, type, description, amount, status) VALUES (?, 'daily_gain', ?, ?, 'success')")
+           ->execute([$userId, "Gain journalier " . $inv['plan_name'], $inv['daily_gain']]);
+
+        $newRemaining = $inv['days_remaining'] - 1;
+        if ($newRemaining <= 0) {
+            $db->prepare("UPDATE investments SET days_remaining=0, status='completed', completed_at=? WHERE id=?")
+               ->execute([$now, $inv['id']]);
+            addNotification($userId, "Votre plan {$inv['plan_name']} est maintenant terminé. Merci d'avoir investi !");
+        } else {
+            $db->prepare("UPDATE investments SET days_remaining=? WHERE id=?")->execute([$newRemaining, $inv['id']]);
+        }
+
+        $totalGain += $inv['daily_gain'];
+        $processed++;
+    }
+
+    return ['processed' => $processed, 'total' => $totalGain, 'already_done' => ($alreadyDone && $processed === 0), 'no_vip' => false];
+}
+
 function countUnreadNotifications(int $userId): int {
     $stmt = getDB()->prepare("SELECT COUNT(*) FROM notifications WHERE user_id = ? AND is_read = 0");
     $stmt->execute([$userId]);

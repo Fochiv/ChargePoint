@@ -27,6 +27,29 @@ $referralCount = $refCount->fetchColumn();
 
 $welcome = isset($_GET['welcome']);
 $depositSuccess = isset($_GET['deposit']) && $_GET['deposit'] === 'success';
+
+// Traitement du bouton "Récupérer mon gain"
+$gainResult = null;
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['claim_gain']) && verify_csrf()) {
+    $gainResult = processUserDailyGains($user['id']);
+    if ($gainResult['processed'] > 0) {
+        $user = getCurrentUser();
+        $todayGains2 = $db->prepare("SELECT COALESCE(SUM(amount),0) FROM transactions WHERE user_id = ? AND type='daily_gain' AND DATE(created_at)=?");
+        $todayGains2->execute([$user['id'], date('Y-m-d')]);
+        $todayGainsTotal = (float)$todayGains2->fetchColumn();
+        $investments = $db->prepare("SELECT i.*, p.name as plan_name FROM investments i JOIN vip_plans p ON i.plan_id = p.id WHERE i.user_id = ? AND i.status = 'active' ORDER BY i.started_at DESC")->execute([$user['id']]) ? [] : [];
+        $stmt2 = $db->prepare("SELECT i.*, p.name as plan_name FROM investments i JOIN vip_plans p ON i.plan_id = p.id WHERE i.user_id = ? AND i.status = 'active' ORDER BY i.started_at DESC");
+        $stmt2->execute([$user['id']]);
+        $investments = $stmt2->fetchAll();
+    }
+} else {
+    // Auto-traitement silencieux à chaque visite
+    processUserDailyGains($user['id']);
+    $user = getCurrentUser();
+    $todayGains = $db->prepare("SELECT COALESCE(SUM(amount),0) FROM transactions WHERE user_id = ? AND type='daily_gain' AND DATE(created_at)=?");
+    $todayGains->execute([$user['id'], date('Y-m-d')]);
+    $todayGainsTotal = (float)$todayGains->fetchColumn();
+}
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -102,6 +125,61 @@ $depositSuccess = isset($_GET['deposit']) && $_GET['deposit'] === 'success';
     <div class="stat-card-value"><?= $referralCount ?></div>
     <div class="stat-card-label">Parrainages</div>
   </div>
+</div>
+
+<!-- GAIN JOURNALIER -->
+<?php
+$hasActiveVip = !empty($investments);
+$gainAlreadyDone = false;
+if ($hasActiveVip) {
+    $checkToday = $db->prepare("SELECT COUNT(*) FROM transactions WHERE user_id=? AND type='daily_gain' AND DATE(created_at)=?");
+    $checkToday->execute([$user['id'], date('Y-m-d')]);
+    $gainAlreadyDone = (int)$checkToday->fetchColumn() > 0;
+}
+?>
+<div style="margin-bottom:24px;">
+<?php if (!$hasActiveVip): ?>
+  <div style="background:linear-gradient(135deg,rgba(255,107,0,0.08),rgba(255,107,0,0.03));border:1.5px dashed rgba(255,107,0,0.4);border-radius:16px;padding:20px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+    <div style="background:rgba(255,107,0,0.12);width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <i class="fas fa-crown" style="color:var(--primary);font-size:1.4rem;"></i>
+    </div>
+    <div style="flex:1;min-width:200px;">
+      <div style="font-weight:700;font-size:1rem;margin-bottom:4px;">Aucun plan VIP actif</div>
+      <div style="font-size:0.875rem;color:var(--text-muted);">Activez un plan VIP pour commencer à recevoir vos gains journaliers automatiquement.</div>
+    </div>
+    <a href="/vip.php" class="btn-primary-custom" style="padding:12px 24px;font-size:0.9rem;flex-shrink:0;">
+      <i class="fas fa-crown"></i> Voir les plans VIP
+    </a>
+  </div>
+<?php elseif ($gainResult && $gainResult['processed'] > 0): ?>
+  <div class="alert alert-success" style="border-radius:16px;padding:18px 24px;display:flex;align-items:center;gap:14px;margin:0;">
+    <i class="fas fa-circle-check" style="font-size:1.6rem;flex-shrink:0;"></i>
+    <div>
+      <div style="font-weight:700;font-size:1rem;">Gain journalier récupéré !</div>
+      <div style="font-size:0.875rem;opacity:0.9;">+<?= formatAmount($gainResult['total']) ?> ajouté à votre solde.</div>
+    </div>
+  </div>
+<?php elseif ($gainAlreadyDone): ?>
+  <div style="background:linear-gradient(135deg,rgba(16,185,129,0.08),rgba(16,185,129,0.03));border:1.5px solid rgba(16,185,129,0.25);border-radius:16px;padding:18px 24px;display:flex;align-items:center;gap:14px;">
+    <div style="background:rgba(16,185,129,0.12);width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <i class="fas fa-check-circle" style="color:var(--success);font-size:1.4rem;"></i>
+    </div>
+    <div style="flex:1;">
+      <div style="font-weight:700;font-size:1rem;color:var(--success);">Gain du jour déjà reçu</div>
+      <div style="font-size:0.875rem;color:var(--text-muted);">Revenez demain pour récupérer votre prochain gain journalier.</div>
+    </div>
+    <div style="font-size:1.2rem;font-weight:800;color:var(--success);"><?= formatAmount($todayGainsTotal) ?></div>
+  </div>
+<?php else: ?>
+  <form method="POST">
+    <?= csrf_field() ?>
+    <button type="submit" name="claim_gain" value="1"
+      style="width:100%;background:linear-gradient(135deg,#ff6b00,#ff8c00);color:white;border:none;border-radius:16px;padding:18px 24px;font-size:1.05rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;transition:opacity 0.2s;"
+      onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">
+      <i class="fas fa-bolt"></i> Récupérer mon gain journalier
+    </button>
+  </form>
+<?php endif; ?>
 </div>
 
 <!-- MAIN DEPOSIT BUTTON -->
