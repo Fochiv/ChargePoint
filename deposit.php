@@ -30,9 +30,9 @@ if (empty($countries)) $countries = getDefaultCountries();
 <div class="page-title">Dépôt de Fonds</div>
 <div class="page-subtitle">Alimentez votre compte via Mobile Money pour investir.</div>
 
-<div style="max-width:580px;">
+<div style="max-width:580px;margin:0 auto;width:100%;">
   <div class="card-custom deposit-form">
-    <div class="card-custom-header"><h5><i class="fas fa-arrow-down-to-line" style="color:var(--primary)"></i> Initier un dépôt</h5></div>
+    <div class="card-custom-header"><h5><i class="fas fa-download" style="color:var(--primary)"></i> Initier un dépôt</h5></div>
     <div class="card-custom-body">
       <form id="deposit_form" onsubmit="submitDepositForm(event)">
         <?= csrf_field() ?>

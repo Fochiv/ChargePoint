@@ -29,11 +29,11 @@ function renderAdminSidebar(string $activePage = ''): void {
     <a href="/admin/users.php" class="admin-nav-item <?= $activePage==='users'?'active':'' ?>"><i class="fas fa-users" style="width:20px"></i> Utilisateurs</a>
     <a href="/admin/orders.php" class="admin-nav-item <?= $activePage==='orders'?'active':'' ?>"><i class="fas fa-crown" style="width:20px"></i> Commandes</a>
     <a href="/admin/deposits.php" class="admin-nav-item <?= $activePage==='deposits'?'active':'' ?>">
-      <i class="fas fa-arrow-down-to-line" style="width:20px"></i> Dépôts
+      <i class="fas fa-download" style="width:20px"></i> Dépôts
       <?php $pendingDep = getDB()->query("SELECT COUNT(*) FROM transactions WHERE type='deposit' AND status='pending'")->fetchColumn(); if ($pendingDep > 0): ?><span style="background:var(--success);color:white;font-size:0.7rem;padding:2px 7px;border-radius:10px;margin-left:auto;"><?= $pendingDep ?></span><?php endif; ?>
     </a>
     <a href="/admin/withdrawals.php" class="admin-nav-item <?= $activePage==='withdrawals'?'active':'' ?>">
-      <i class="fas fa-arrow-up-from-bracket" style="width:20px"></i> Retraits
+      <i class="fas fa-upload" style="width:20px"></i> Retraits
       <?php if ($pending > 0): ?><span style="background:var(--primary);color:white;font-size:0.7rem;padding:2px 7px;border-radius:10px;margin-left:auto;"><?= $pending ?></span><?php endif; ?>
     </a>
     <a href="/admin/transactions.php" class="admin-nav-item <?= $activePage==='transactions'?'active':'' ?>"><i class="fas fa-list" style="width:20px"></i> Transactions</a>
@@ -49,14 +49,20 @@ function renderAdminSidebar(string $activePage = ''): void {
     </div>
   </nav>
 </aside>
+<div id="admin-sidebar-overlay" class="admin-sidebar-overlay"></div>
 <div class="admin-content">
 <?php }
 
 function renderAdminTopbar(string $title, string $subtitle = ''): void { ?>
 <div class="admin-topbar">
-  <div>
-    <div style="font-size:1.1rem;font-weight:700;"><?= e($title) ?></div>
-    <?php if ($subtitle): ?><div style="font-size:0.82rem;color:var(--text-muted);"><?= e($subtitle) ?></div><?php endif; ?>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <button class="admin-hamburger" onclick="toggleAdminSidebar()" aria-label="Menu">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div>
+      <div style="font-size:1.1rem;font-weight:700;"><?= e($title) ?></div>
+      <?php if ($subtitle): ?><div style="font-size:0.82rem;color:var(--text-muted);"><?= e($subtitle) ?></div><?php endif; ?>
+    </div>
   </div>
   <div style="display:flex;align-items:center;gap:16px;">
     <a href="/" target="_blank" style="font-size:0.85rem;color:var(--primary);font-weight:600;"><i class="fas fa-external-link-alt"></i> Voir le site</a>

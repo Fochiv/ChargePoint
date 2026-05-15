@@ -302,3 +302,23 @@ function shareReferral() {
 function confirmAction(message, callback) {
     if (confirm(message)) callback();
 }
+
+// ===== ADMIN SIDEBAR TOGGLE (MOBILE) =====
+function toggleAdminSidebar() {
+    const sidebar = document.querySelector('.admin-sidebar');
+    const overlay = document.getElementById('admin-sidebar-overlay');
+    if (!sidebar) return;
+    const isOpen = sidebar.classList.toggle('admin-sidebar-open');
+    if (overlay) overlay.style.display = isOpen ? 'block' : 'none';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const overlay = document.getElementById('admin-sidebar-overlay');
+    if (overlay) {
+        overlay.addEventListener('click', function() {
+            const sidebar = document.querySelector('.admin-sidebar');
+            if (sidebar) sidebar.classList.remove('admin-sidebar-open');
+            this.style.display = 'none';
+        });
+    }
+});

@@ -711,13 +711,40 @@ footer .footer-bottom { border-top: 1px solid rgba(255,255,255,0.1); padding-top
 }
 .admin-page-content { padding: 28px; }
 
+/* ========== ADMIN HAMBURGER ========== */
+.admin-hamburger {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: var(--text);
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 8px;
+  line-height: 1;
+}
+.admin-hamburger:hover { background: var(--bg); }
+.admin-sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 299;
+}
+
 /* ========== RESPONSIVE ========== */
 @media (max-width: 991px) {
   .sidebar { display: none; }
   .main-content { margin-left: 0; }
   .hero h1 { font-size: 2.2rem; }
   .nav-links { display: none; }
-  .admin-sidebar { display: none; }
+  .admin-hamburger { display: inline-flex; align-items: center; justify-content: center; }
+  .admin-sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.28s cubic-bezier(.4,0,.2,1);
+    z-index: 300;
+  }
+  .admin-sidebar.admin-sidebar-open { transform: translateX(0); }
   .admin-content { margin-left: 0; }
 }
 

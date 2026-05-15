@@ -34,8 +34,8 @@ function renderAppLayout(array $user, string $activePage = ''): void {
     <nav class="sidebar-nav">
       <a href="/dashboard.php" class="sidebar-item ' . $active('dashboard') . '"><span class="sidebar-icon"><i class="fas fa-th-large"></i></span> Tableau de Bord</a>
       <a href="/vip.php" class="sidebar-item ' . $active('vip') . '"><span class="sidebar-icon"><i class="fas fa-crown"></i></span> Plans VIP</a>
-      <a href="/deposit.php" class="sidebar-item ' . $active('deposit') . '"><span class="sidebar-icon"><i class="fas fa-arrow-down-to-line"></i></span> Dépôt</a>
-      <a href="/withdraw.php" class="sidebar-item ' . $active('withdraw') . '"><span class="sidebar-icon"><i class="fas fa-arrow-up-from-bracket"></i></span> Retrait</a>
+      <a href="/deposit.php" class="sidebar-item ' . $active('deposit') . '"><span class="sidebar-icon"><i class="fas fa-download"></i></span> Dépôt</a>
+      <a href="/withdraw.php" class="sidebar-item ' . $active('withdraw') . '"><span class="sidebar-icon"><i class="fas fa-upload"></i></span> Retrait</a>
       <a href="/transactions.php" class="sidebar-item ' . $active('transactions') . '"><span class="sidebar-icon"><i class="fas fa-list"></i></span> Transactions</a>
       <a href="/referral.php" class="sidebar-item ' . $active('referral') . '"><span class="sidebar-icon"><i class="fas fa-users"></i></span> Équipe</a>
       <a href="/profile.php" class="sidebar-item ' . $active('profile') . '"><span class="sidebar-icon"><i class="fas fa-user"></i></span> Mon Profil</a>
@@ -67,7 +67,6 @@ function renderBottomNav(string $activePage = ''): void {
   <nav class="bottom-nav">
     <a href="/dashboard.php" class="bottom-nav-item ' . $active('dashboard') . '"><span class="bottom-nav-icon"><i class="fas fa-th-large"></i></span><span>Accueil</span></a>
     <a href="/vip.php" class="bottom-nav-item ' . $active('vip') . '"><span class="bottom-nav-icon"><i class="fas fa-crown"></i></span><span>VIP</span></a>
-    <a href="/deposit.php" class="bottom-nav-item ' . $active('deposit') . '" style="' . ($activePage === 'deposit' ? '' : '') . '"><span class="bottom-nav-icon" style="' . ($activePage === 'deposit' ? '' : 'background:var(--primary);color:white;border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;margin-top:-10px;box-shadow:0 4px 15px rgba(255,107,0,0.4);') . '"><i class="fas fa-circle-plus"></i></span><span>Dépôt</span></a>
     <a href="/referral.php" class="bottom-nav-item ' . $active('referral') . '"><span class="bottom-nav-icon"><i class="fas fa-users"></i></span><span>Équipe</span></a>
     <a href="/profile.php" class="bottom-nav-item ' . $active('profile') . '"><span class="bottom-nav-icon"><i class="fas fa-user"></i></span><span>Profil</span></a>
   </nav>

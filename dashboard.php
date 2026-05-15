@@ -114,7 +114,7 @@ $depositSuccess = isset($_GET['deposit']) && $_GET['deposit'] === 'success';
 <!-- QUICK ACTIONS -->
 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;" class="quick-grid">
   <a href="/deposit.php" class="quick-action">
-    <div class="quick-action-icon"><i class="fas fa-arrow-down-to-line"></i></div>
+    <div class="quick-action-icon"><i class="fas fa-download"></i></div>
     <div class="quick-action-label">Dépôt</div>
   </a>
   <a href="/withdraw.php" class="quick-action">

@@ -21,8 +21,8 @@ function verify_csrf(): bool {
     return isset($_POST['csrf_token']) && hash_equals(csrf_token(), $_POST['csrf_token']);
 }
 
-function e(string $str): string {
-    return htmlspecialchars($str, ENT_QUOTES, 'UTF-8');
+function e(?string $str): string {
+    return htmlspecialchars((string)($str ?? ''), ENT_QUOTES, 'UTF-8');
 }
 
 function flash(string $key, string $msg = null): ?string {
@@ -79,9 +79,10 @@ function getCountries(): array {
         return $cache;
     }
     $result = ashtechRequest('/v1/countries');
-    if (isset($result[0]['code'])) {
-        file_put_contents($cacheFile, json_encode($result));
-        $cache = $result;
+    if (is_array($result) && isset($result[0]['code'])) {
+        $valid = array_values(array_filter($result, fn($c) => !empty($c['code']) && !empty($c['name'])));
+        file_put_contents($cacheFile, json_encode($valid));
+        $cache = $valid;
     } else {
         $cache = getDefaultCountries();
     }

@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <?php if ($error): ?><div class="alert alert-danger alert-auto"><?= e($error) ?></div><?php endif; ?>
 <?php if ($success): ?><div class="alert alert-success alert-auto"><?= e($success) ?></div><?php endif; ?>
 
-<div style="max-width:600px;">
+<div style="max-width:600px;margin:0 auto;width:100%;">
 
   <!-- Profile Header -->
   <div class="card-custom" style="margin-bottom:16px;text-align:center;">
