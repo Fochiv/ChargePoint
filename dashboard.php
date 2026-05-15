@@ -34,6 +34,7 @@ $depositSuccess = isset($_GET['deposit']) && $_GET['deposit'] === 'success';
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tableau de Bord — ChargePoint</title>
+<link rel="icon" type="image/jpeg" href="/assets/logo.jpg">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="/assets/css/style.css">
 </head>
@@ -222,8 +223,6 @@ $depositSuccess = isset($_GET['deposit']) && $_GET['deposit'] === 'success';
   </div>
 </div>
 
-<?php renderBottomNav('dashboard'); ?>
-
 <style>
 @media(max-width:767px){
   .stats-grid{grid-template-columns:repeat(2,1fr)!important;}
@@ -234,6 +233,4 @@ $depositSuccess = isset($_GET['deposit']) && $_GET['deposit'] === 'success';
   .stats-grid{grid-template-columns:1fr 1fr!important;}
 }
 </style>
-<script src="/assets/js/main.js"></script>
-</body>
-</html>
+<?php renderBottomNav('dashboard'); ?>

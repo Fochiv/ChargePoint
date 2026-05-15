@@ -6,6 +6,7 @@ function renderAdminHead(string $title = 'Admin'): void { ?>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title><?= e($title) ?> — ChargePoint Admin</title>
+<link rel="icon" type="image/jpeg" href="/assets/logo.jpg">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="/assets/css/style.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -26,12 +27,18 @@ function renderAdminSidebar(string $activePage = ''): void {
   <nav class="admin-sidebar-nav">
     <a href="/admin/dashboard.php" class="admin-nav-item <?= $activePage==='dashboard'?'active':'' ?>"><i class="fas fa-th-large" style="width:20px"></i> Tableau de Bord</a>
     <a href="/admin/users.php" class="admin-nav-item <?= $activePage==='users'?'active':'' ?>"><i class="fas fa-users" style="width:20px"></i> Utilisateurs</a>
+    <a href="/admin/orders.php" class="admin-nav-item <?= $activePage==='orders'?'active':'' ?>"><i class="fas fa-crown" style="width:20px"></i> Commandes</a>
+    <a href="/admin/deposits.php" class="admin-nav-item <?= $activePage==='deposits'?'active':'' ?>">
+      <i class="fas fa-arrow-down-to-line" style="width:20px"></i> Dépôts
+      <?php $pendingDep = getDB()->query("SELECT COUNT(*) FROM transactions WHERE type='deposit' AND status='pending'")->fetchColumn(); if ($pendingDep > 0): ?><span style="background:var(--success);color:white;font-size:0.7rem;padding:2px 7px;border-radius:10px;margin-left:auto;"><?= $pendingDep ?></span><?php endif; ?>
+    </a>
     <a href="/admin/withdrawals.php" class="admin-nav-item <?= $activePage==='withdrawals'?'active':'' ?>">
-      <i class="fas fa-money-bill-transfer" style="width:20px"></i> Retraits
+      <i class="fas fa-arrow-up-from-bracket" style="width:20px"></i> Retraits
       <?php if ($pending > 0): ?><span style="background:var(--primary);color:white;font-size:0.7rem;padding:2px 7px;border-radius:10px;margin-left:auto;"><?= $pending ?></span><?php endif; ?>
     </a>
     <a href="/admin/transactions.php" class="admin-nav-item <?= $activePage==='transactions'?'active':'' ?>"><i class="fas fa-list" style="width:20px"></i> Transactions</a>
-    <a href="/admin/vip_plans.php" class="admin-nav-item <?= $activePage==='vip_plans'?'active':'' ?>"><i class="fas fa-crown" style="width:20px"></i> Plans VIP</a>
+    <a href="/admin/balances.php" class="admin-nav-item <?= $activePage==='balances'?'active':'' ?>"><i class="fas fa-wallet" style="width:20px"></i> Soldes</a>
+    <a href="/admin/vip_plans.php" class="admin-nav-item <?= $activePage==='vip_plans'?'active':'' ?>"><i class="fas fa-gem" style="width:20px"></i> Plans VIP</a>
     <a href="/admin/settings.php" class="admin-nav-item <?= $activePage==='settings'?'active':'' ?>"><i class="fas fa-cog" style="width:20px"></i> Paramètres</a>
     <div style="padding:16px 24px;margin-top:auto;">
       <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:16px;">

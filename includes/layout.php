@@ -6,6 +6,7 @@ function renderHead(string $title = 'ChargePoint'): void {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>' . e($title) . ' — ChargePoint</title>
+<link rel="icon" type="image/jpeg" href="/assets/logo.jpg">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="/assets/css/style.css">
 </head>
@@ -66,6 +67,7 @@ function renderBottomNav(string $activePage = ''): void {
   <nav class="bottom-nav">
     <a href="/dashboard.php" class="bottom-nav-item ' . $active('dashboard') . '"><span class="bottom-nav-icon"><i class="fas fa-th-large"></i></span><span>Accueil</span></a>
     <a href="/vip.php" class="bottom-nav-item ' . $active('vip') . '"><span class="bottom-nav-icon"><i class="fas fa-crown"></i></span><span>VIP</span></a>
+    <a href="/deposit.php" class="bottom-nav-item ' . $active('deposit') . '" style="' . ($activePage === 'deposit' ? '' : '') . '"><span class="bottom-nav-icon" style="' . ($activePage === 'deposit' ? '' : 'background:var(--primary);color:white;border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;margin-top:-10px;box-shadow:0 4px 15px rgba(255,107,0,0.4);') . '"><i class="fas fa-circle-plus"></i></span><span>Dépôt</span></a>
     <a href="/referral.php" class="bottom-nav-item ' . $active('referral') . '"><span class="bottom-nav-icon"><i class="fas fa-users"></i></span><span>Équipe</span></a>
     <a href="/profile.php" class="bottom-nav-item ' . $active('profile') . '"><span class="bottom-nav-icon"><i class="fas fa-user"></i></span><span>Profil</span></a>
   </nav>

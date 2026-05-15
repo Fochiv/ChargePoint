@@ -530,17 +530,18 @@ footer .footer-bottom { border-top: 1px solid rgba(255,255,255,0.1); padding-top
   flex: 1;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  gap: 4px;
+  gap: 3px;
   color: var(--text-muted);
-  font-size: 0.72rem;
+  font-size: 0.65rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
-  padding: 8px 0;
+  padding: 6px 0;
+  text-decoration: none;
 }
 .bottom-nav-item.active { color: var(--primary); }
 .bottom-nav-item:hover { color: var(--primary); }
-.bottom-nav-icon { font-size: 1.3rem; }
+.bottom-nav-icon { font-size: 1.2rem; }
 
 /* ========== CARD COMMON ========== */
 .card-custom {

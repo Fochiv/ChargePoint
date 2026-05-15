@@ -215,6 +215,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 .profile-menu-label { flex: 1; font-weight: 500; font-size: 0.92rem; }
 .profile-menu-arrow { color: var(--text-muted); font-size: 0.78rem; }
 </style>
-<script src="/assets/js/main.js"></script>
-</body>
-</html>

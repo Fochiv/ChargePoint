@@ -96,24 +96,25 @@ $pendingCount = $db->query("SELECT COUNT(*) FROM transactions WHERE type='withdr
     <div class="empty-state"><div class="empty-state-icon">✅</div><div class="empty-state-title">Aucun retrait dans cette catégorie</div></div>
     <?php else: ?>
     <table class="table-custom">
-      <thead><tr><th>Date</th><th>Utilisateur</th><th>Pays</th><th>Numéro de retrait</th><th>Méthode</th><th>Montant</th><th>Statut</th><th>Actions</th></tr></thead>
+      <thead><tr><th>ID</th><th>Utilisateur</th><th>Pays</th><th>Opérateur</th><th>Montant</th><th>Numéro de retrait</th><th>Date</th><th>Statut</th><th>Actions</th></tr></thead>
       <tbody>
       <?php foreach ($withdrawals as $wd): ?>
       <tr>
-        <td style="font-size:0.82rem;white-space:nowrap"><?= date('d/m/Y H:i', strtotime($wd['created_at'])) ?></td>
+        <td style="font-family:monospace;font-weight:700;color:var(--text-muted);">#<?= $wd['id'] ?></td>
         <td>
-          <div style="font-weight:700;"><?= e($wd['user_name']) ?></div>
+          <a href="/admin/user_detail.php?id=<?= $wd['user_id'] ?>" style="color:var(--primary);font-weight:700;"><?= e($wd['user_name']) ?></a>
           <div style="font-size:0.78rem;color:var(--text-muted)"><?= e($wd['user_phone']) ?></div>
         </td>
         <td style="font-size:0.88rem;"><?= e($wd['country'] ?? '—') ?></td>
+        <td style="font-size:0.88rem;font-weight:600;"><?= e($wd['operator'] ?? $wd['method'] ?? '—') ?></td>
+        <td style="font-weight:800;color:var(--danger)"><?= formatAmount($wd['amount']) ?></td>
         <td>
           <div style="display:flex;align-items:center;gap:6px;">
-            <span id="num_<?= $wd['id'] ?>" style="font-family:monospace;font-weight:700;"><?= e($wd['phone'] ?? '—') ?></span>
-            <button data-copy="<?= e($wd['phone'] ?? '') ?>" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:3px 8px;font-size:0.75rem;cursor:pointer;font-weight:600;">Copier</button>
+            <span style="font-family:monospace;font-weight:700;font-size:0.88rem;"><?= e($wd['phone'] ?? '—') ?></span>
+            <?php if ($wd['phone']): ?><button data-copy="<?= e($wd['phone']) ?>" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:3px 8px;font-size:0.72rem;cursor:pointer;font-weight:600;flex-shrink:0;">Copier</button><?php endif; ?>
           </div>
         </td>
-        <td style="font-size:0.88rem;"><?= e($wd['method'] ?? '—') ?></td>
-        <td style="font-weight:800;color:var(--danger)"><?= formatAmount($wd['amount']) ?></td>
+        <td style="font-size:0.82rem;white-space:nowrap"><?= date('d/m/Y H:i', strtotime($wd['created_at'])) ?></td>
         <td><?= getStatusBadge($wd['status']) ?></td>
         <td>
           <?php if ($wd['status'] === 'pending'): ?>

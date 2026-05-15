@@ -65,6 +65,7 @@ $countries = getDefaultCountries();
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/jpeg" href="/assets/logo.jpg">
 <title>Retrait de Fonds — ChargePoint</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="/assets/css/style.css">
@@ -213,7 +214,6 @@ $countries = getDefaultCountries();
   </div>
 </div>
 
-<?php renderBottomNav('withdraw'); ?>
 <style>
 @media(max-width:767px){.withdraw-grid{grid-template-columns:1fr!important;}}
 </style>
@@ -228,6 +228,4 @@ document.getElementById('wd_amount')?.addEventListener('input', function() {
   } else { el.textContent = ''; }
 });
 </script>
-<script src="/assets/js/main.js"></script>
-</body>
-</html>
+<?php renderBottomNav('withdraw'); ?>
