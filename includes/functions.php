@@ -158,26 +158,31 @@ function activateInvestmentPlan(int $userId, int $planId, float $amount): void {
 
 function processUserDailyGains(int $userId): array {
     $db = getDB();
-    $today = date('Y-m-d');
 
     $stmt = $db->prepare("SELECT i.*, p.name as plan_name FROM investments i JOIN vip_plans p ON i.plan_id=p.id WHERE i.user_id=? AND i.status='active' AND i.days_remaining>0");
     $stmt->execute([$userId]);
     $investments = $stmt->fetchAll();
 
     if (empty($investments)) {
-        return ['processed' => 0, 'total' => 0, 'already_done' => false, 'no_vip' => true];
+        return ['processed' => 0, 'total' => 0, 'already_done' => false, 'no_vip' => true, 'next_available_at' => null];
     }
 
     $alreadyDone = false;
     $processed = 0;
     $totalGain = 0.0;
     $now = date('Y-m-d H:i:s');
+    $nextAvailableAt = null;
 
     foreach ($investments as $inv) {
-        $check = $db->prepare("SELECT id FROM transactions WHERE user_id=? AND type='daily_gain' AND DATE(created_at)=? AND description LIKE ?");
-        $check->execute([$userId, $today, '%' . $inv['plan_name'] . '%']);
-        if ($check->fetch()) {
+        $check = $db->prepare("SELECT id, created_at FROM transactions WHERE user_id=? AND type='daily_gain' AND created_at >= datetime('now','-24 hours') AND description LIKE ? ORDER BY created_at DESC LIMIT 1");
+        $check->execute([$userId, '%' . $inv['plan_name'] . '%']);
+        $lastGain = $check->fetch();
+        if ($lastGain) {
             $alreadyDone = true;
+            $nextTs = strtotime($lastGain['created_at']) + 86400;
+            if ($nextAvailableAt === null || $nextTs > $nextAvailableAt) {
+                $nextAvailableAt = $nextTs;
+            }
             continue;
         }
 
@@ -199,7 +204,11 @@ function processUserDailyGains(int $userId): array {
         $processed++;
     }
 
-    return ['processed' => $processed, 'total' => $totalGain, 'already_done' => ($alreadyDone && $processed === 0), 'no_vip' => false];
+    if ($processed > 0 && $nextAvailableAt === null) {
+        $nextAvailableAt = time() + 86400;
+    }
+
+    return ['processed' => $processed, 'total' => $totalGain, 'already_done' => ($alreadyDone && $processed === 0), 'no_vip' => false, 'next_available_at' => $nextAvailableAt];
 }
 
 function countUnreadNotifications(int $userId): int {

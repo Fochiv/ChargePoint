@@ -34,13 +34,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['claim_gain']) && veri
     $gainResult = processUserDailyGains($user['id']);
     if ($gainResult['processed'] > 0) {
         $user = getCurrentUser();
-        $todayGains2 = $db->prepare("SELECT COALESCE(SUM(amount),0) FROM transactions WHERE user_id = ? AND type='daily_gain' AND DATE(created_at)=?");
-        $todayGains2->execute([$user['id'], date('Y-m-d')]);
+        $todayGains2 = $db->prepare("SELECT COALESCE(SUM(amount),0) FROM transactions WHERE user_id = ? AND type='daily_gain' AND created_at >= datetime('now','-24 hours')");
+        $todayGains2->execute([$user['id']]);
         $todayGainsTotal = (float)$todayGains2->fetchColumn();
-        $investments = $db->prepare("SELECT i.*, p.name as plan_name FROM investments i JOIN vip_plans p ON i.plan_id = p.id WHERE i.user_id = ? AND i.status = 'active' ORDER BY i.started_at DESC")->execute([$user['id']]) ? [] : [];
         $stmt2 = $db->prepare("SELECT i.*, p.name as plan_name FROM investments i JOIN vip_plans p ON i.plan_id = p.id WHERE i.user_id = ? AND i.status = 'active' ORDER BY i.started_at DESC");
         $stmt2->execute([$user['id']]);
         $investments = $stmt2->fetchAll();
+    }
+}
+
+// Calcul du timestamp de prochain gain disponible (24h glissantes)
+$nextGainTimestamp = null;
+if (!empty($investments)) {
+    $lastGainStmt = $db->prepare("SELECT MAX(created_at) FROM transactions WHERE user_id=? AND type='daily_gain' AND created_at >= datetime('now','-24 hours')");
+    $lastGainStmt->execute([$user['id']]);
+    $lastGainAt = $lastGainStmt->fetchColumn();
+    if ($lastGainAt) {
+        $nextGainTimestamp = strtotime($lastGainAt) + 86400;
+    }
+    if ($gainResult && $gainResult['next_available_at'] && $gainResult['processed'] > 0) {
+        $nextGainTimestamp = $gainResult['next_available_at'];
     }
 }
 ?>
@@ -121,15 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['claim_gain']) && veri
 </div>
 
 <!-- GAIN JOURNALIER -->
-<?php
-$hasActiveVip = !empty($investments);
-$gainAlreadyDone = false;
-if ($hasActiveVip) {
-    $checkToday = $db->prepare("SELECT COUNT(*) FROM transactions WHERE user_id=? AND type='daily_gain' AND DATE(created_at)=?");
-    $checkToday->execute([$user['id'], date('Y-m-d')]);
-    $gainAlreadyDone = (int)$checkToday->fetchColumn() > 0;
-}
-?>
+<?php $hasActiveVip = !empty($investments); ?>
 <div style="margin-bottom:24px;">
 <?php if (!$hasActiveVip): ?>
   <div style="background:linear-gradient(135deg,rgba(255,107,0,0.08),rgba(255,107,0,0.03));border:1.5px dashed rgba(255,107,0,0.4);border-radius:16px;padding:20px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
@@ -138,31 +143,67 @@ if ($hasActiveVip) {
     </div>
     <div style="flex:1;min-width:200px;">
       <div style="font-weight:700;font-size:1rem;margin-bottom:4px;">Aucun plan VIP actif</div>
-      <div style="font-size:0.875rem;color:var(--text-muted);">Activez un plan VIP pour commencer à recevoir vos gains journaliers automatiquement.</div>
+      <div style="font-size:0.875rem;color:var(--text-muted);">Activez un plan VIP pour commencer à recevoir vos gains journaliers.</div>
     </div>
     <a href="/vip.php" class="btn-primary-custom" style="padding:12px 24px;font-size:0.9rem;flex-shrink:0;">
       <i class="fas fa-crown"></i> Voir les plans VIP
     </a>
   </div>
 <?php elseif ($gainResult && $gainResult['processed'] > 0): ?>
-  <div class="alert alert-success" style="border-radius:16px;padding:18px 24px;display:flex;align-items:center;gap:14px;margin:0;">
-    <i class="fas fa-circle-check" style="font-size:1.6rem;flex-shrink:0;"></i>
-    <div>
-      <div style="font-weight:700;font-size:1rem;">Gain journalier récupéré !</div>
-      <div style="font-size:0.875rem;opacity:0.9;">+<?= formatAmount($gainResult['total']) ?> ajouté à votre solde.</div>
+  <div style="background:linear-gradient(135deg,rgba(16,185,129,0.10),rgba(16,185,129,0.04));border:1.5px solid rgba(16,185,129,0.3);border-radius:16px;padding:18px 24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+    <div style="background:rgba(16,185,129,0.15);width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <i class="fas fa-circle-check" style="color:var(--success);font-size:1.4rem;"></i>
+    </div>
+    <div style="flex:1;min-width:160px;">
+      <div style="font-weight:700;font-size:1rem;color:var(--success);">+<?= formatAmount($gainResult['total']) ?> ajouté à votre solde !</div>
+      <div style="font-size:0.85rem;color:var(--text-muted);margin-top:4px;">Prochain gain disponible dans&nbsp;: <strong id="countdown-timer" style="color:var(--primary);">--:--:--</strong></div>
     </div>
   </div>
-<?php elseif ($gainAlreadyDone): ?>
-  <div style="background:linear-gradient(135deg,rgba(16,185,129,0.08),rgba(16,185,129,0.03));border:1.5px solid rgba(16,185,129,0.25);border-radius:16px;padding:18px 24px;display:flex;align-items:center;gap:14px;">
+  <?php if ($nextGainTimestamp): ?>
+  <script>
+    (function(){
+      var next = <?= (int)$nextGainTimestamp ?> * 1000;
+      function tick(){
+        var diff = Math.max(0, next - Date.now());
+        var h = String(Math.floor(diff/3600000)).padStart(2,'0');
+        var m = String(Math.floor((diff%3600000)/60000)).padStart(2,'0');
+        var s = String(Math.floor((diff%60000)/1000)).padStart(2,'0');
+        var el = document.getElementById('countdown-timer');
+        if(el) el.textContent = h+':'+m+':'+s;
+        if(diff > 0) setTimeout(tick, 1000);
+        else if(el) el.textContent = 'Disponible !';
+      }
+      tick();
+    })();
+  </script>
+  <?php endif; ?>
+<?php elseif ($nextGainTimestamp): ?>
+  <div style="background:linear-gradient(135deg,rgba(16,185,129,0.08),rgba(16,185,129,0.03));border:1.5px solid rgba(16,185,129,0.25);border-radius:16px;padding:18px 24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
     <div style="background:rgba(16,185,129,0.12);width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-      <i class="fas fa-check-circle" style="color:var(--success);font-size:1.4rem;"></i>
+      <i class="fas fa-clock" style="color:var(--success);font-size:1.4rem;"></i>
     </div>
-    <div style="flex:1;">
-      <div style="font-weight:700;font-size:1rem;color:var(--success);">Gain du jour déjà reçu</div>
-      <div style="font-size:0.875rem;color:var(--text-muted);">Revenez demain pour récupérer votre prochain gain journalier.</div>
+    <div style="flex:1;min-width:160px;">
+      <div style="font-weight:700;font-size:1rem;color:var(--success);">Gain du jour déjà récupéré</div>
+      <div style="font-size:0.85rem;color:var(--text-muted);margin-top:4px;">Prochain gain disponible dans&nbsp;: <strong id="countdown-timer" style="color:var(--primary);">--:--:--</strong></div>
     </div>
-    <div style="font-size:1.2rem;font-weight:800;color:var(--success);"><?= formatAmount($todayGainsTotal) ?></div>
+    <div style="font-size:1.15rem;font-weight:800;color:var(--success);flex-shrink:0;"><?= formatAmount($todayGainsTotal) ?></div>
   </div>
+  <script>
+    (function(){
+      var next = <?= (int)$nextGainTimestamp ?> * 1000;
+      function tick(){
+        var diff = Math.max(0, next - Date.now());
+        var h = String(Math.floor(diff/3600000)).padStart(2,'0');
+        var m = String(Math.floor((diff%3600000)/60000)).padStart(2,'0');
+        var s = String(Math.floor((diff%60000)/1000)).padStart(2,'0');
+        var el = document.getElementById('countdown-timer');
+        if(el) el.textContent = h+':'+m+':'+s;
+        if(diff > 0) setTimeout(tick, 1000);
+        else { if(el) el.textContent = 'Disponible !'; setTimeout(function(){ location.reload(); }, 2000); }
+      }
+      tick();
+    })();
+  </script>
 <?php else: ?>
   <form method="POST">
     <?= csrf_field() ?>
