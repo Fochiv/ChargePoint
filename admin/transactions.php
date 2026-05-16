@@ -16,9 +16,9 @@ $page = max(1, (int)($_GET['page'] ?? 1));
 $perPage = 25;
 $offset = ($page - 1) * $perPage;
 
-$where = ['1=1'];
+$where = ["t.type IN ('deposit','withdrawal','admin_deposit','manual_deposit','admin_adjustment')"];
 $params = [];
-if ($filterType) { $where[] = 't.type=?'; $params[] = $filterType; }
+if ($filterType) { $where = ['t.type=?']; $params[] = $filterType; }
 if ($filterStatus) { $where[] = 't.status=?'; $params[] = $filterStatus; }
 if ($filterPeriod === '7d') { $where[] = "t.created_at >= datetime('now','-7 days')"; }
 elseif ($filterPeriod === '30d') { $where[] = "t.created_at >= datetime('now','-30 days')"; }
@@ -56,8 +56,6 @@ $txList = $stmt->fetchAll();
           <option value="">Tous les types</option>
           <option value="deposit" <?= $filterType==='deposit'?'selected':'' ?>>Dépôt</option>
           <option value="withdrawal" <?= $filterType==='withdrawal'?'selected':'' ?>>Retrait</option>
-          <option value="daily_gain" <?= $filterType==='daily_gain'?'selected':'' ?>>Gain journalier</option>
-          <option value="referral_commission" <?= $filterType==='referral_commission'?'selected':'' ?>>Commission parrainage</option>
           <option value="admin_deposit" <?= $filterType==='admin_deposit'?'selected':'' ?>>Dépôt admin</option>
           <option value="manual_deposit" <?= $filterType==='manual_deposit'?'selected':'' ?>>Dépôt manuel</option>
         </select>

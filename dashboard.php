@@ -42,13 +42,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['claim_gain']) && veri
         $stmt2->execute([$user['id']]);
         $investments = $stmt2->fetchAll();
     }
-} else {
-    // Auto-traitement silencieux à chaque visite
-    processUserDailyGains($user['id']);
-    $user = getCurrentUser();
-    $todayGains = $db->prepare("SELECT COALESCE(SUM(amount),0) FROM transactions WHERE user_id = ? AND type='daily_gain' AND DATE(created_at)=?");
-    $todayGains->execute([$user['id'], date('Y-m-d')]);
-    $todayGainsTotal = (float)$todayGains->fetchColumn();
 }
 ?>
 <!DOCTYPE html>
