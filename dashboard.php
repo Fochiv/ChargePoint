@@ -30,12 +30,13 @@ $depositSuccess = isset($_GET['deposit']) && $_GET['deposit'] === 'success';
 
 // Traitement du bouton "Récupérer mon gain"
 $gainResult = null;
+$since24h = date('Y-m-d H:i:s', time() - 86400);
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['claim_gain']) && verify_csrf()) {
     $gainResult = processUserDailyGains($user['id']);
     if ($gainResult['processed'] > 0) {
         $user = getCurrentUser();
-        $todayGains2 = $db->prepare("SELECT COALESCE(SUM(amount),0) FROM transactions WHERE user_id = ? AND type='daily_gain' AND created_at >= datetime('now','-24 hours')");
-        $todayGains2->execute([$user['id']]);
+        $todayGains2 = $db->prepare("SELECT COALESCE(SUM(amount),0) FROM transactions WHERE user_id = ? AND type='daily_gain' AND created_at >= ?");
+        $todayGains2->execute([$user['id'], $since24h]);
         $todayGainsTotal = (float)$todayGains2->fetchColumn();
         $stmt2 = $db->prepare("SELECT i.*, p.name as plan_name FROM investments i JOIN vip_plans p ON i.plan_id = p.id WHERE i.user_id = ? AND i.status = 'active' ORDER BY i.started_at DESC");
         $stmt2->execute([$user['id']]);
@@ -46,8 +47,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['claim_gain']) && veri
 // Calcul du timestamp de prochain gain disponible (24h glissantes)
 $nextGainTimestamp = null;
 if (!empty($investments)) {
-    $lastGainStmt = $db->prepare("SELECT MAX(created_at) FROM transactions WHERE user_id=? AND type='daily_gain' AND created_at >= datetime('now','-24 hours')");
-    $lastGainStmt->execute([$user['id']]);
+    $lastGainStmt = $db->prepare("SELECT MAX(created_at) FROM transactions WHERE user_id=? AND type='daily_gain' AND created_at >= ?");
+    $lastGainStmt->execute([$user['id'], $since24h]);
     $lastGainAt = $lastGainStmt->fetchColumn();
     if ($lastGainAt) {
         $nextGainTimestamp = strtotime($lastGainAt) + 86400;

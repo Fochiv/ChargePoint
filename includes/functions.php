@@ -173,9 +173,10 @@ function processUserDailyGains(int $userId): array {
     $now = date('Y-m-d H:i:s');
     $nextAvailableAt = null;
 
+    $since24h = date('Y-m-d H:i:s', time() - 86400);
     foreach ($investments as $inv) {
-        $check = $db->prepare("SELECT id, created_at FROM transactions WHERE user_id=? AND type='daily_gain' AND created_at >= datetime('now','-24 hours') AND description LIKE ? ORDER BY created_at DESC LIMIT 1");
-        $check->execute([$userId, '%' . $inv['plan_name'] . '%']);
+        $check = $db->prepare("SELECT id, created_at FROM transactions WHERE user_id=? AND type='daily_gain' AND created_at >= ? AND description LIKE ? ORDER BY created_at DESC LIMIT 1");
+        $check->execute([$userId, $since24h, '%' . $inv['plan_name'] . '%']);
         $lastGain = $check->fetch();
         if ($lastGain) {
             $alreadyDone = true;

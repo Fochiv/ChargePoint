@@ -20,8 +20,8 @@ $where = ["t.type IN ('deposit','withdrawal','admin_deposit','manual_deposit','a
 $params = [];
 if ($filterType) { $where = ['t.type=?']; $params[] = $filterType; }
 if ($filterStatus) { $where[] = 't.status=?'; $params[] = $filterStatus; }
-if ($filterPeriod === '7d') { $where[] = "t.created_at >= datetime('now','-7 days')"; }
-elseif ($filterPeriod === '30d') { $where[] = "t.created_at >= datetime('now','-30 days')"; }
+if ($filterPeriod === '7d') { $where[] = "t.created_at >= ?"; $params[] = date('Y-m-d H:i:s', time() - 7*86400); }
+elseif ($filterPeriod === '30d') { $where[] = "t.created_at >= ?"; $params[] = date('Y-m-d H:i:s', time() - 30*86400); }
 if ($search) { $where[] = "(u.name LIKE ? OR u.email LIKE ?)"; $params[] = "%$search%"; $params[] = "%$search%"; }
 $whereStr = 'WHERE ' . implode(' AND ', $where);
 
