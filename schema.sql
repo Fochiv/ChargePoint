@@ -120,6 +120,11 @@ CREATE INDEX IF NOT EXISTS idx_tx_reference ON transactions(reference);
 CREATE INDEX IF NOT EXISTS idx_tx_ashtech   ON transactions(ashtech_transaction_id);
 CREATE INDEX IF NOT EXISTS idx_tx_created   ON transactions(created_at);
 
+CREATE TABLE IF NOT EXISTS ashtech_webhook_events (
+    event_key   TEXT PRIMARY KEY,
+    received_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
 -- ============================================================
 -- TABLE : notifications
 -- ============================================================

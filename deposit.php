@@ -12,7 +12,7 @@ $db = getDB();
 $preFillAmount = (int)($_GET['amount'] ?? 0);
 $preFillPlanId = (int)($_GET['plan'] ?? 0);
 $countries = getCountries();
-if (empty($countries)) $countries = getDefaultCountries();
+$countryCatalogUnavailable = empty($countries);
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -34,6 +34,11 @@ if (empty($countries)) $countries = getDefaultCountries();
   <div class="card-custom deposit-form">
     <div class="card-custom-header"><h5><i class="fas fa-download" style="color:var(--primary)"></i> Initier un dépôt</h5></div>
     <div class="card-custom-body">
+      <?php if ($countryCatalogUnavailable): ?>
+      <div class="alert alert-danger" role="alert" style="margin-bottom:16px;">
+        Le catalogue de paiement AshTech Pay n’est pas disponible. Vérifiez la configuration du compte marchand et réessayez plus tard.
+      </div>
+      <?php endif; ?>
       <form id="deposit_form" onsubmit="submitDepositForm(event)">
         <?= csrf_field() ?>
         <?php if ($preFillPlanId): ?>
@@ -82,10 +87,10 @@ if (empty($countries)) $countries = getDefaultCountries();
         <input type="hidden" name="currency" id="currency" value="XOF">
 
         <div class="form-group" id="phone_group">
-          <label class="form-label">Numéro de téléphone *</label>
+          <label class="form-label">Numéro international de téléphone *</label>
           <div class="input-with-icon">
             <i class="fas fa-phone"></i>
-            <input type="tel" name="phone" id="phone" class="form-control" placeholder="Ex: 07XXXXXXXX" required>
+            <input type="tel" name="phone" id="phone" class="form-control" placeholder="Ex: 2376XXXXXXXX" required>
           </div>
           <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">Le numéro qui recevra la demande de paiement</div>
         </div>
@@ -97,7 +102,7 @@ if (empty($countries)) $countries = getDefaultCountries();
           <div class="info-row" style="border:none"><span class="info-label">Pays</span><span class="info-value" id="recap_country">—</span></div>
         </div>
 
-        <button type="submit" class="btn-auth"><i class="fas fa-arrow-right"></i> Continuer vers le paiement</button>
+        <button type="submit" class="btn-auth" <?= $countryCatalogUnavailable ? 'disabled' : '' ?>><i class="fas fa-arrow-right"></i> Continuer vers le paiement</button>
       </form>
     </div>
   </div>
@@ -122,10 +127,11 @@ if (empty($countries)) $countries = getDefaultCountries();
     <div id="otp_section" class="otp-section" style="display:none;margin-top:16px;">
       <div id="ussd_code_info" style="font-size:0.9rem;margin-bottom:12px;"></div>
       <form id="otp_form" onsubmit="submitOTPDirect(event)">
+        <?= csrf_field() ?>
         <input type="hidden" id="otp_transaction_id" name="transaction_id">
         <div style="display:flex;gap:8px;">
           <input type="text" name="otp" id="otp_input" class="form-control" placeholder="Entrez le code OTP" maxlength="10" style="text-align:center;letter-spacing:4px;font-size:1.2rem;font-weight:700;">
-          <button type="submit" class="btn-primary-custom" style="padding:10px 20px;white-space:nowrap;">Valider</button>
+          <button type="submit" id="otp_submit_btn" class="btn-primary-custom" style="padding:10px 20px;white-space:nowrap;">Valider</button>
         </div>
       </form>
     </div>
@@ -133,7 +139,7 @@ if (empty($countries)) $countries = getDefaultCountries();
       <a id="wave_open_btn" href="#" target="_blank" class="btn-wave"><i class="fas fa-mobile-screen"></i> Payer avec Wave</a>
     </div>
     <div id="retry_btn" style="display:none;margin-top:16px;">
-      <button onclick="window.location.reload()" style="background:var(--danger);color:white;border:none;padding:12px 28px;border-radius:12px;font-weight:700;cursor:pointer;">Réessayer</button>
+      <a href="/transactions.php" class="btn-primary-custom">Consulter l’historique des transactions</a>
     </div>
   </div>
 </div>
@@ -162,9 +168,8 @@ function updateOperators(select) {
 }
 
 function applyOperatorChange(val) {
-  const isWave = val.toLowerCase().includes('wave');
   const phoneInput = document.getElementById('phone');
-  if (phoneInput) phoneInput.required = !isWave;
+  if (phoneInput) phoneInput.required = true;
   document.getElementById('recap_operator').textContent = val || '—';
 }
 
@@ -215,6 +220,9 @@ function submitDepositForm(e) {
         }
       }
       document.getElementById('payment_overlay').style.display = 'flex';
+      if (data.message) {
+        document.getElementById('payment_status_text').textContent = data.message;
+      }
       startPolling(data.transaction_id);
     } else {
       let alertEl = document.getElementById('form_error') || document.createElement('div');
@@ -227,8 +235,13 @@ function submitDepositForm(e) {
     }
   })
   .catch(() => {
-    btn.disabled = false;
-    btn.innerHTML = '<i class="fas fa-arrow-right"></i> Continuer vers le paiement';
+    btn.disabled = true;
+    btn.textContent = 'Vérifiez le statut avant de réessayer';
+    const alertEl = document.getElementById('form_error') || document.createElement('div');
+    alertEl.id = 'form_error';
+    alertEl.className = 'alert alert-danger';
+    alertEl.textContent = 'La réponse est incertaine. Ne créez pas une nouvelle demande avant d’avoir vérifié votre historique de transactions.';
+    form.prepend(alertEl);
   });
 }
 
@@ -253,9 +266,10 @@ function startPolling(txId) {
         statusEl.textContent = '✅ Paiement validé !'; statusEl.className = 'payment-status-text status-success';
         document.getElementById('payment_spinner').style.display = 'none';
         setTimeout(() => window.location.href = '/dashboard.php?deposit=success', 1500);
-      } else if (d.status === 'failed') {
+      } else if (['failed', 'cancelled', 'expired'].includes(d.status)) {
         clearInterval(pollInterval); clearInterval(countdownInterval);
-        statusEl.textContent = '❌ Paiement échoué.'; statusEl.className = 'payment-status-text status-failed';
+        statusEl.textContent = d.status === 'failed' ? '❌ Paiement échoué.' : 'La demande de paiement a été annulée ou a expiré.';
+        statusEl.className = 'payment-status-text status-failed';
         document.getElementById('payment_spinner').style.display = 'none';
         document.getElementById('retry_btn').style.display = 'block';
       }
@@ -273,6 +287,8 @@ function startPolling(txId) {
 function submitOTPDirect(e) {
   e.preventDefault();
   const form = e.target;
+  const submitBtn = document.getElementById('otp_submit_btn');
+  submitBtn.disabled = true;
   fetch('/api/submit_otp.php', { method:'POST', body: new FormData(form) })
   .then(r => r.json())
   .then(data => {
@@ -282,9 +298,22 @@ function submitOTPDirect(e) {
       document.querySelector('.countdown').style.display = 'block';
       document.getElementById('payment_status_text').textContent = '🟡 En attente de validation...';
       document.getElementById('payment_status_text').className = 'payment-status-text status-pending';
+    } else if (data.otp_required) {
+      submitBtn.disabled = false;
+      if (data.ussd_code) {
+        document.getElementById('ussd_code_info').textContent = 'Composez le code USSD : ' + data.ussd_code + ', puis saisissez le code reçu.';
+      }
+      document.getElementById('otp_input').value = '';
+      document.getElementById('otp_input').focus();
     } else {
       alert(data.message || 'OTP invalide.');
+      if (!data.uncertain) submitBtn.disabled = false;
+      if (data.uncertain) {
+        document.getElementById('payment_status_text').textContent = data.message;
+      }
     }
+  }).catch(() => {
+    document.getElementById('payment_status_text').textContent = 'Réponse incertaine. Ne renvoyez pas le code OTP; vérifiez le statut du paiement.';
   });
 }
 </script>

@@ -106,6 +106,15 @@ CREATE TABLE IF NOT EXISTS `transactions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
+-- TABLE : AshTech Pay webhook idempotency
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `ashtech_webhook_events` (
+    `event_key`   VARCHAR(80) NOT NULL,
+    `received_at` DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`event_key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
 -- TABLE : notifications
 -- ============================================================
 CREATE TABLE IF NOT EXISTS `notifications` (

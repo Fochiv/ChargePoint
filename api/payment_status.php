@@ -7,41 +7,37 @@ require_once '../includes/functions.php';
 header('Content-Type: application/json');
 startSession();
 
+$userId = (int)($_SESSION['user_id'] ?? 0);
+if ($userId < 1) {
+    http_response_code(401);
+    echo json_encode(['status' => 'unauthorized']);
+    exit;
+}
+
 $id = $_GET['id'] ?? '';
 if (!$id) { echo json_encode(['status' => 'error', 'message' => 'ID manquant']); exit; }
 
 $db = getDB();
-$stmt = $db->prepare("SELECT * FROM transactions WHERE ashtech_transaction_id = ? OR id = ?");
-$stmt->execute([$id, (int)$id]);
+$stmt = $db->prepare("SELECT * FROM transactions WHERE type='deposit' AND user_id=? AND (ashtech_transaction_id = ? OR id = ?)");
+$stmt->execute([$userId, $id, (int)$id]);
 $tx = $stmt->fetch();
 
 if (!$tx) { echo json_encode(['status' => 'not_found']); exit; }
 
-if (in_array($tx['status'], ['success', 'failed', 'expired'])) {
+if (in_array($tx['status'], ['success', 'failed', 'cancelled', 'expired'], true)) {
     echo json_encode(['status' => $tx['status']]);
     exit;
 }
 
-// Poll Ashtech API
 if ($tx['ashtech_transaction_id']) {
     $result = getTransactionStatus($tx['ashtech_transaction_id']);
-    $apiStatus = $result['status'] ?? 'pending';
-    
-    if ($apiStatus === 'success') {
-        if ($tx['status'] !== 'success') {
-            $db->prepare("UPDATE transactions SET status='success', updated_at=? WHERE id=?")->execute([date('Y-m-d H:i:s'), $tx['id']]);
-            $db->prepare("UPDATE users SET balance=balance+?, has_deposit=1 WHERE id=?")->execute([$tx['amount'], $tx['user_id']]);
-            if ($tx['plan_id']) activateInvestmentPlan($tx['user_id'], $tx['plan_id'], $tx['amount']);
-            processReferralCommissions($tx['user_id'], $tx['amount']);
-            addNotification($tx['user_id'], "Dépôt de " . formatAmount($tx['amount']) . " validé !");
-        }
-        echo json_encode(['status' => 'success']);
-    } elseif ($apiStatus === 'failed') {
-        $db->prepare("UPDATE transactions SET status='failed', updated_at=? WHERE id=?")->execute([date('Y-m-d H:i:s'), $tx['id']]);
-        echo json_encode(['status' => 'failed']);
-    } else {
-        echo json_encode(['status' => 'pending']);
+    $httpCode = $result['_http_code'] ?? 0;
+    $apiStatus = strtolower((string)($result['status'] ?? 'pending'));
+    if ($httpCode >= 200 && $httpCode < 300) {
+        $status = finalizeAshtechDeposit($db, $tx, $apiStatus);
+        echo json_encode(['status' => $status]);
+        exit;
     }
-} else {
-    echo json_encode(['status' => $tx['status']]);
 }
+
+echo json_encode(['status' => $tx['status']]);

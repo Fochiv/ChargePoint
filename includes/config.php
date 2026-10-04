@@ -1,6 +1,7 @@
 <?php
-define('ASHTECH_API_KEY', 'ak_83adbb920ef3efd424561f70d6b76e7bf0ed91cce302973a');
-define('ASHTECH_BASE_URL', 'https://ashtechpay.top');
+define('ASHTECH_WEBHOOK_SECRET', trim((string)(getenv('ASHTECH_WEBHOOK_SECRET') ?: '')));
+define('ASHTECH_API_KEY', trim((string)(getenv('ASHTECH_API_KEY') ?: '')));
+define('ASHTECH_BASE_URL', 'https://www.ashtechpay.com');
 define('DB_PATH', __DIR__ . '/../database.sqlite');
 define('SITE_URL', 'https://chargepoint.zya.me');
 define('SITE_NAME', 'ChargePoint');

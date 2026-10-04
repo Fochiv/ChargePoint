@@ -7,7 +7,7 @@ Full-stack investment platform built with PHP 8.2, Bootstrap/custom CSS, vanilla
 - **Backend**: PHP 8.2 (built-in server on port 5000)
 - **Database**: SQLite 3 via PDO (`database.sqlite`)
 - **Frontend**: Custom CSS (orange #FF6B00 theme), vanilla JS, Font Awesome icons
-- **Payment**: Ashtechpay API (`ak_83adbb920ef3efd424561f70d6b76e7bf0ed91cce302973a`)
+- **Payment**: AshTech Pay Direct API at `https://www.ashtechpay.com`; configure `ASHTECH_API_KEY` and `ASHTECH_WEBHOOK_SECRET` in Replit Secrets.
 
 ## Running the App
 ```
@@ -31,12 +31,11 @@ php -S 0.0.0.0:5000 router.php
 - `/admin/withdrawals.php` — Withdrawal processing
 - `/admin/vip_plans.php` — VIP plan management
 - `/admin/settings.php` — Platform settings
-- `/api/cron.php?key=cp_cron_secret_2026` — Daily gains cron
+- `/api/cron.php (configured key required)` — Daily gains cron
 - `/webhook.php` — Ashtechpay payment webhook
 
-## Admin Credentials
-- **Username**: Ben10
-- **Password**: 1214161820@Ben
+## Admin Access
+- Do not store administrator credentials in project documentation.
 
 ## Business Rules
 - 10 VIP plans (3,000 → 400,000 FCFA), 125-day duration, daily gains auto-credited

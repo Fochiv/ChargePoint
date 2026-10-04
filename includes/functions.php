@@ -41,23 +41,46 @@ function redirect(string $url): void {
 }
 
 function ashtechRequest(string $endpoint, array $data = [], string $method = 'GET'): array {
-    $url = ASHTECH_BASE_URL . $endpoint;
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Authorization: Bearer ' . ASHTECH_API_KEY,
-        'Content-Type: application/json',
-    ]);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    if ($method === 'POST') {
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    if (ASHTECH_API_KEY === '') {
+        return ['_http_code' => 0, '_error' => 'missing_api_key'];
     }
+
+    $ch = curl_init(ASHTECH_BASE_URL . $endpoint);
+    if ($ch === false) {
+        return ['_http_code' => 0, '_error' => 'request_init_failed'];
+    }
+
+    $options = [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HTTPHEADER => [
+            'Authorization: Bearer ' . ASHTECH_API_KEY,
+            'Accept: application/json',
+            'Content-Type: application/json',
+        ],
+        CURLOPT_CONNECTTIMEOUT => 10,
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_SSL_VERIFYHOST => 2,
+    ];
+    if ($method === 'POST') {
+        $options[CURLOPT_POST] = true;
+        $options[CURLOPT_POSTFIELDS] = json_encode($data, JSON_UNESCAPED_SLASHES);
+    }
+    curl_setopt_array($ch, $options);
+
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $requestFailed = $response === false;
     curl_close($ch);
-    $decoded = json_decode($response, true) ?? [];
+
+    if ($requestFailed) {
+        return ['_http_code' => (int)$httpCode, '_error' => 'network_error'];
+    }
+
+    $decoded = json_decode($response, true);
+    if (!is_array($decoded)) {
+        $decoded = ['message' => 'Réponse API illisible.'];
+    }
     $decoded['_http_code'] = $httpCode;
     return $decoded;
 }
@@ -67,47 +90,124 @@ function initiatePayment(array $params): array {
 }
 
 function getTransactionStatus(string $transactionId): array {
-    return ashtechRequest('/v1/transaction/' . $transactionId);
+    return ashtechRequest('/v1/transaction/' . rawurlencode($transactionId));
 }
 
 function getCountries(): array {
     static $cache = null;
     if ($cache !== null) return $cache;
-    $cacheFile = sys_get_temp_dir() . '/ashtech_countries.json';
+    $cacheFile = sys_get_temp_dir() . '/ashtech_countries_v2.json';
     if (file_exists($cacheFile) && (time() - filemtime($cacheFile)) < 3600) {
-        $cache = json_decode(file_get_contents($cacheFile), true) ?? [];
-        return $cache;
+        $cached = json_decode(file_get_contents($cacheFile), true);
+        if (is_array($cached) && $cached !== []) {
+            return $cache = $cached;
+        }
     }
+
     $result = ashtechRequest('/v1/countries');
-    if (is_array($result) && isset($result[0]['code'])) {
-        $valid = array_values(array_filter($result, fn($c) => !empty($c['code']) && !empty($c['name'])));
-        file_put_contents($cacheFile, json_encode($valid));
-        $cache = $valid;
-    } else {
-        $cache = getDefaultCountries();
+    $httpCode = $result['_http_code'] ?? 0;
+    if ($httpCode < 200 || $httpCode >= 300 || isset($result['_error'])) {
+        return $cache = [];
     }
-    return $cache;
+
+    unset($result['_http_code']);
+    $countries = $result['countries'] ?? $result;
+    if (!is_array($countries)) {
+        return $cache = [];
+    }
+
+    $valid = [];
+    foreach ($countries as $country) {
+        if (
+            is_array($country)
+            && !empty($country['code'])
+            && !empty($country['name'])
+            && !empty($country['currency'])
+            && isset($country['operators'])
+            && is_array($country['operators'])
+        ) {
+            $valid[] = $country;
+        }
+    }
+
+    if ($valid !== []) {
+        file_put_contents($cacheFile, json_encode($valid, JSON_UNESCAPED_UNICODE));
+    }
+    return $cache = $valid;
 }
 
-function getDefaultCountries(): array {
-    return [
-        ['code'=>'BJ','name'=>'Bénin','currency'=>'XOF','operators'=>['Moov Money','MTN Mobile Money']],
-        ['code'=>'BF','name'=>'Burkina Faso','currency'=>'XOF','operators'=>['Moov Money','Orange Money']],
-        ['code'=>'CM','name'=>'Cameroun','currency'=>'XAF','operators'=>['MTN Mobile Money','Orange Money']],
-        ['code'=>'CF','name'=>'Centrafrique','currency'=>'XAF','operators'=>['Orange Money']],
-        ['code'=>'CG','name'=>'Congo','currency'=>'XAF','operators'=>['Airtel Money','MTN Mobile Money']],
-        ['code'=>'CI','name'=>"Côte d'Ivoire",'currency'=>'XOF','operators'=>['Moov Money','MTN Mobile Money','Orange Money','Wave']],
-        ['code'=>'GA','name'=>'Gabon','currency'=>'XAF','operators'=>['Airtel Money','Moov Money']],
-        ['code'=>'GN','name'=>'Guinée Conakry','currency'=>'GNF','operators'=>['MTN Mobile Money','Orange Money']],
-        ['code'=>'GQ','name'=>'Guinée équatoriale','currency'=>'XAF','operators'=>['Orange Money']],
-        ['code'=>'GW','name'=>'Guinée-Bissau','currency'=>'XOF','operators'=>['Orange Money']],
-        ['code'=>'ML','name'=>'Mali','currency'=>'XOF','operators'=>['Moov Money','Orange Money']],
-        ['code'=>'NE','name'=>'Niger','currency'=>'XOF','operators'=>['Airtel Money']],
-        ['code'=>'CD','name'=>'RD Congo','currency'=>'CDF','operators'=>['Afrimoney','Airtel Money','Orange Money','Vodacom M-Pesa']],
-        ['code'=>'SN','name'=>'Sénégal','currency'=>'XOF','operators'=>['Free Money','Orange Money','Wave']],
-        ['code'=>'TD','name'=>'Tchad','currency'=>'XAF','operators'=>['Airtel Money','Moov Money']],
-        ['code'=>'TG','name'=>'Togo','currency'=>'XOF','operators'=>['Flooz (Moov)','T-Money']],
-    ];
+function verifyAshtechWebhookSignature(string $rawBody, string $timestamp, string $signature, ?int $now = null): bool {
+    if (ASHTECH_WEBHOOK_SECRET === '' || !ctype_digit($timestamp)) {
+        return false;
+    }
+
+    $now ??= time();
+    if (abs($now - (int)$timestamp) > 300) {
+        return false;
+    }
+
+    $provided = preg_replace('/^sha256=/i', '', trim($signature));
+    if (!is_string($provided) || !preg_match('/^[a-f0-9]{64}$/i', $provided)) {
+        return false;
+    }
+
+    $expected = hash_hmac('sha256', $timestamp . '.' . $rawBody, ASHTECH_WEBHOOK_SECRET);
+    return hash_equals(strtolower($expected), strtolower($provided));
+}
+
+function finalizeAshtechDeposit(PDO $db, array $transaction, string $providerStatus): string {
+    $providerStatus = strtolower(trim($providerStatus));
+    $finalStatus = match ($providerStatus) {
+        'success', 'completed' => 'success',
+        'failed' => 'failed',
+        'cancelled', 'canceled' => 'cancelled',
+        'expired' => 'expired',
+        default => 'pending',
+    };
+
+    if ($finalStatus === 'pending' || ($transaction['status'] ?? '') !== 'pending') {
+        return $transaction['status'] ?? 'pending';
+    }
+
+    $ownsTransaction = !$db->inTransaction();
+    if ($ownsTransaction) {
+        $db->beginTransaction();
+    }
+
+    try {
+        $stmt = $db->prepare(
+            "UPDATE transactions SET status=?, updated_at=? WHERE id=? AND type='deposit' AND status='pending'"
+        );
+        $stmt->execute([$finalStatus, date('Y-m-d H:i:s'), $transaction['id']]);
+
+        if ($stmt->rowCount() === 1 && $finalStatus === 'success') {
+            $db->prepare("UPDATE users SET balance=balance+?, has_deposit=1 WHERE id=?")
+                ->execute([$transaction['amount'], $transaction['user_id']]);
+            if (!empty($transaction['plan_id'])) {
+                activateInvestmentPlan($transaction['user_id'], $transaction['plan_id'], $transaction['amount']);
+            }
+            processReferralCommissions($transaction['user_id'], $transaction['amount']);
+            addNotification(
+                $transaction['user_id'],
+                "Dépôt de " . formatAmount((float)$transaction['amount']) . " validé avec succès !"
+            );
+        } elseif ($stmt->rowCount() === 1) {
+            addNotification(
+                $transaction['user_id'],
+                "Votre paiement de " . formatAmount((float)$transaction['amount']) . " a échoué."
+            );
+        }
+
+        if ($ownsTransaction) {
+            $db->commit();
+        }
+        return $stmt->rowCount() === 1 ? $finalStatus : ($transaction['status'] ?? 'pending');
+    } catch (Throwable $error) {
+        if ($ownsTransaction && $db->inTransaction()) {
+            $db->rollBack();
+        }
+        throw $error;
+    }
 }
 
 function processReferralCommissions(int $userId, float $amount): void {
