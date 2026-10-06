@@ -5,3 +5,4 @@ database.sqlite
 *.sqlite-shm
 /tmp/
 .env
+includes/database.local.php

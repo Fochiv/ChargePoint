@@ -5,7 +5,7 @@ Full-stack investment platform built with PHP 8.2, Bootstrap/custom CSS, vanilla
 
 ## Stack
 - **Backend**: PHP 8.2 (built-in server on port 5000)
-- **Database**: SQLite 3 via PDO (`database.sqlite`)
+- **Database**: PDO SQLite by default in Replit; PDO MySQL is also supported for classic PHP hosting
 - **Frontend**: Custom CSS (orange #FF6B00 theme), vanilla JS, Font Awesome icons
 - **Payment**: AshTech Pay Direct API at `https://www.ashtechpay.com`; configure `ASHTECH_API_KEY` and `ASHTECH_WEBHOOK_SECRET` in Replit Secrets.
 
@@ -33,6 +33,14 @@ php -S 0.0.0.0:5000 router.php
 - `/admin/settings.php` — Platform settings
 - `/api/cron.php (configured key required)` — Daily gains cron
 - `/webhook.php` — Ashtechpay payment webhook
+
+## Database Configuration
+- Replit defaults to SQLite and keeps using `database.sqlite`.
+- For a MySQL host, either set `DB_DRIVER=mysql`, `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, and `DB_PASSWORD`, or copy `includes/database.local.example.php` to the ignored `includes/database.local.php` and fill it privately.
+- `SITE_URL` can be set to the public HTTPS URL of the hosted site.
+- Existing MySQL databases are preserved. Runtime setup only adds missing AshTech transaction columns and the webhook-deduplication table; it does not import or replace the database.
+- Import `schema_mysql.sql` only when creating a new, empty MySQL database.
+- `ASHTECH_API_KEY` is required. `ASHTECH_WEBHOOK_SECRET` is recommended; without it, signed webhooks are rejected and payment completion relies on server-side status polling.
 
 ## Admin Access
 - Do not store administrator credentials in project documentation.

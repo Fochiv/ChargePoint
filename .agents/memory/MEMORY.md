@@ -1,0 +1,1 @@
+- [SQLite and MySQL hosting](database-hosting.md) — preserve local SQLite and support the existing classic MySQL host without replacing its data; unsigned webhooks must remain rejected.

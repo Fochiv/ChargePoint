@@ -80,10 +80,7 @@ $eventKey = $deliveryId !== ''
 
 try {
     $db->beginTransaction();
-    $insertEvent = $db->prepare("INSERT OR IGNORE INTO ashtech_webhook_events (event_key) VALUES (?)");
-    $insertEvent->execute([$eventKey]);
-
-    if ($insertEvent->rowCount() === 0) {
+    if (!insertAshtechWebhookEvent($db, $eventKey)) {
         $db->commit();
         ashtechWebhookResponse(200, ['received' => true, 'duplicate' => true]);
     }

@@ -4,14 +4,167 @@ require_once __DIR__ . '/config.php';
 function getDB(): PDO {
     static $pdo = null;
     if ($pdo === null) {
-        $pdo = new PDO('sqlite:' . DB_PATH);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-        $pdo->exec('PRAGMA journal_mode=WAL');
-        $pdo->exec('PRAGMA foreign_keys=ON');
-        initDB($pdo);
+        $config = getDatabaseConfig();
+        if ($config['driver'] === 'mysql') {
+            if (!in_array('mysql', PDO::getAvailableDrivers(), true)) {
+                throw new RuntimeException('Le pilote PDO MySQL doit être activé sur cet hébergement.');
+            }
+            if ($config['dsn'] !== '') {
+                $dsn = $config['dsn'];
+            } else {
+                foreach (['host', 'database', 'username'] as $required) {
+                    if ($config[$required] === '') {
+                        throw new RuntimeException('Configuration MySQL incomplète. Renseignez host, database et username.');
+                    }
+                }
+                $dsn = sprintf(
+                    'mysql:host=%s;port=%d;dbname=%s;charset=utf8mb4',
+                    $config['host'],
+                    $config['port'],
+                    $config['database']
+                );
+            }
+            $pdo = new PDO($dsn, $config['username'], $config['password'], [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES => false,
+            ]);
+            $pdo->exec('SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci');
+            initMySQLDatabase($pdo);
+        } else {
+            if (!in_array('sqlite', PDO::getAvailableDrivers(), true)) {
+                throw new RuntimeException('Le pilote PDO SQLite doit être activé pour le mode local.');
+            }
+            $pdo = new PDO('sqlite:' . $config['path']);
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+            $pdo->exec('PRAGMA journal_mode=WAL');
+            $pdo->exec('PRAGMA foreign_keys=ON');
+            initDB($pdo);
+        }
     }
     return $pdo;
+}
+
+function getDatabaseConfig(): array {
+    static $config = null;
+    if ($config !== null) return $config;
+
+    $localFile = __DIR__ . '/database.local.php';
+    $local = is_file($localFile) ? require $localFile : [];
+    if (!is_array($local)) {
+        throw new RuntimeException('includes/database.local.php doit retourner un tableau de configuration.');
+    }
+
+    $value = static function (array $environmentNames, string $localName, $default = '') use ($local) {
+        foreach ($environmentNames as $name) {
+            $environmentValue = getenv($name);
+            if ($environmentValue !== false && $environmentValue !== '') return $environmentValue;
+        }
+        return $local[$localName] ?? $default;
+    };
+
+    $dsn = trim((string)$value(['DB_DSN'], 'dsn'));
+    $host = trim((string)$value(['DB_HOST', 'MYSQL_HOST'], 'host'));
+    $database = trim((string)$value(['DB_NAME', 'DB_DATABASE', 'MYSQL_DB'], 'database'));
+    $username = trim((string)$value(['DB_USER', 'DB_USERNAME', 'MYSQL_USER'], 'username'));
+    $password = (string)$value(['DB_PASSWORD', 'DB_PASS', 'MYSQL_PASS'], 'password');
+    $driver = strtolower(trim((string)$value(['DB_DRIVER'], 'driver')));
+    if ($driver === '') {
+        $driver = (str_starts_with(strtolower($dsn), 'mysql:') || $host !== '' || $database !== '')
+            ? 'mysql'
+            : 'sqlite';
+    }
+    if (!in_array($driver, ['sqlite', 'mysql'], true)) {
+        throw new RuntimeException('DB_DRIVER doit être sqlite ou mysql.');
+    }
+
+    $port = (int)$value(['DB_PORT', 'MYSQL_PORT'], 'port', 3306);
+    $path = trim((string)$value(['DB_PATH'], 'path', DB_PATH));
+    if (
+        str_starts_with(strtolower($dsn), 'sqlite:')
+        && getenv('DB_PATH') === false
+        && !isset($local['path'])
+    ) {
+        $path = substr($dsn, 7);
+    }
+    $config = [
+        'driver' => $driver,
+        'path' => $path,
+        'dsn' => $dsn,
+        'host' => $host,
+        'port' => $port > 0 ? $port : 3306,
+        'database' => $database,
+        'username' => $username,
+        'password' => $password,
+    ];
+    return $config;
+}
+
+function initMySQLDatabase(PDO $pdo): void {
+    try {
+        $pdo->query('SHOW COLUMNS FROM transactions')->fetchAll();
+    } catch (PDOException $error) {
+        throw new RuntimeException(
+            'La base MySQL est accessible, mais sa table transactions est absente. Importez le schéma MySQL dans une base vide.',
+            0,
+            $error
+        );
+    }
+
+    ensureAshtechTransactionColumns($pdo);
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS ashtech_webhook_events (
+            event_key VARCHAR(80) NOT NULL PRIMARY KEY,
+            received_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    ");
+}
+
+function ensureAshtechTransactionColumns(PDO $pdo): void {
+    $driver = (string)$pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+    if ($driver === 'mysql') {
+        $rows = $pdo->query('SHOW COLUMNS FROM transactions')->fetchAll();
+        $existing = array_fill_keys(array_column($rows, 'Field'), true);
+        $definitions = [
+            'reference' => 'VARCHAR(100) DEFAULT NULL',
+            'ashtech_transaction_id' => 'VARCHAR(100) DEFAULT NULL',
+            'method' => 'VARCHAR(100) DEFAULT NULL',
+            'phone' => 'VARCHAR(50) DEFAULT NULL',
+            'country_code' => 'VARCHAR(10) DEFAULT NULL',
+            'operator' => 'VARCHAR(100) DEFAULT NULL',
+            'plan_id' => 'INT DEFAULT NULL',
+            'updated_at' => 'DATETIME DEFAULT NULL',
+        ];
+    } else {
+        $rows = $pdo->query('PRAGMA table_info(transactions)')->fetchAll();
+        $existing = array_fill_keys(array_column($rows, 'name'), true);
+        $definitions = [
+            'reference' => 'TEXT DEFAULT NULL',
+            'ashtech_transaction_id' => 'TEXT DEFAULT NULL',
+            'method' => 'TEXT DEFAULT NULL',
+            'phone' => 'TEXT DEFAULT NULL',
+            'country_code' => 'TEXT DEFAULT NULL',
+            'operator' => 'TEXT DEFAULT NULL',
+            'plan_id' => 'INTEGER DEFAULT NULL',
+            'updated_at' => 'TEXT DEFAULT NULL',
+        ];
+    }
+
+    foreach ($definitions as $column => $definition) {
+        if (!isset($existing[$column])) {
+            $pdo->exec("ALTER TABLE transactions ADD COLUMN `$column` $definition");
+        }
+    }
+}
+
+function insertAshtechWebhookEvent(PDO $pdo, string $eventKey): bool {
+    $sql = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'mysql'
+        ? 'INSERT IGNORE INTO ashtech_webhook_events (event_key) VALUES (?)'
+        : 'INSERT OR IGNORE INTO ashtech_webhook_events (event_key) VALUES (?)';
+    $statement = $pdo->prepare($sql);
+    $statement->execute([$eventKey]);
+    return $statement->rowCount() === 1;
 }
 
 function initDB(PDO $pdo): void {
@@ -117,6 +270,8 @@ function initDB(PDO $pdo): void {
             created_at TEXT        DEFAULT (datetime('now'))
         );
     ");
+
+    ensureAshtechTransactionColumns($pdo);
 
     // --------------------------------------------------------
     // INDEX
@@ -251,13 +406,13 @@ function initDB(PDO $pdo): void {
             ['withdrawal_fee',   '15'],
             ['maintenance_mode', '0'],
         ];
-        $stmt = $pdo->prepare("INSERT INTO settings (key, value) VALUES (?,?)");
+        $stmt = $pdo->prepare("INSERT INTO settings (`key`, value) VALUES (?,?)");
         foreach ($defaults as $s) $stmt->execute($s);
     }
 }
 
 function getSetting(string $key, string $default = ''): string {
-    $stmt = getDB()->prepare("SELECT value FROM settings WHERE key = ?");
+    $stmt = getDB()->prepare("SELECT value FROM settings WHERE `key` = ?");
     $stmt->execute([$key]);
     $row = $stmt->fetch();
     return $row ? $row['value'] : $default;

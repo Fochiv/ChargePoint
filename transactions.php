@@ -22,18 +22,21 @@ $where = ['user_id = ?'];
 $params = [$user['id']];
 if ($filterType) { $where[] = 'type = ?'; $params[] = $filterType; }
 if ($filterStatus) { $where[] = 'status = ?'; $params[] = $filterStatus; }
-if ($filterPeriod === '7d') { $where[] = "created_at >= datetime('now', '-7 days')"; }
-elseif ($filterPeriod === '30d') { $where[] = "created_at >= datetime('now', '-30 days')"; }
-elseif ($filterPeriod === '3m') { $where[] = "created_at >= datetime('now', '-3 months')"; }
+if ($filterPeriod === '7d') { $where[] = 'created_at >= ?'; $params[] = date('Y-m-d H:i:s', strtotime('-7 days')); }
+elseif ($filterPeriod === '30d') { $where[] = 'created_at >= ?'; $params[] = date('Y-m-d H:i:s', strtotime('-30 days')); }
+elseif ($filterPeriod === '3m') { $where[] = 'created_at >= ?'; $params[] = date('Y-m-d H:i:s', strtotime('-3 months')); }
 
 $whereStr = 'WHERE ' . implode(' AND ', $where);
-$total = $db->prepare("SELECT COUNT(*) FROM transactions $whereStr")->execute($params) ? $db->prepare("SELECT COUNT(*) FROM transactions $whereStr")->execute($params) : 0;
 $countStmt = $db->prepare("SELECT COUNT(*) FROM transactions $whereStr");
 $countStmt->execute($params);
 $total = $countStmt->fetchColumn();
 
 $stmt = $db->prepare("SELECT * FROM transactions $whereStr ORDER BY created_at DESC LIMIT ? OFFSET ?");
-$stmt->execute(array_merge($params, [$perPage, $offset]));
+$allParams = array_merge($params, [$perPage, $offset]);
+foreach ($allParams as $index => $value) {
+  $stmt->bindValue($index + 1, $value, is_int($value) ? PDO::PARAM_INT : PDO::PARAM_STR);
+}
+$stmt->execute();
 $txList = $stmt->fetchAll();
 $totalPages = ceil($total / $perPage);
 ?>

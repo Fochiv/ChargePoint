@@ -2,8 +2,8 @@
 define('ASHTECH_WEBHOOK_SECRET', trim((string)(getenv('ASHTECH_WEBHOOK_SECRET') ?: '')));
 define('ASHTECH_API_KEY', trim((string)(getenv('ASHTECH_API_KEY') ?: '')));
 define('ASHTECH_BASE_URL', 'https://www.ashtechpay.com');
-define('DB_PATH', __DIR__ . '/../database.sqlite');
-define('SITE_URL', 'https://chargepoint.zya.me');
+define('DB_PATH', trim((string)(getenv('DB_PATH') ?: __DIR__ . '/../database.sqlite')));
+define('SITE_URL', rtrim(trim((string)(getenv('SITE_URL') ?: 'https://chargepoint.zya.me')), '/'));
 define('SITE_NAME', 'ChargePoint');
 define('WITHDRAWAL_FEE_PERCENT', 15);
 define('REFERRAL_LEVEL1', 20);

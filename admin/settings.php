@@ -11,12 +11,12 @@ $db = getDB();
 $success = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $upsert = function(PDO $db, string $key, string $value): void {
-        $s = $db->prepare("SELECT key FROM settings WHERE key=?");
+        $s = $db->prepare("SELECT `key` FROM settings WHERE `key`=?");
         $s->execute([$key]);
         if ($s->fetch()) {
-            $db->prepare("UPDATE settings SET value=? WHERE key=?")->execute([$value, $key]);
+            $db->prepare("UPDATE settings SET value=? WHERE `key`=?")->execute([$value, $key]);
         } else {
-            $db->prepare("INSERT INTO settings (key, value) VALUES (?,?)")->execute([$key, $value]);
+            $db->prepare("INSERT INTO settings (`key`, value) VALUES (?,?)")->execute([$key, $value]);
         }
     };
     $simpleFields = ['referral_level1','referral_level2','referral_level3','min_deposit','max_deposit','min_withdrawal','max_withdrawal','withdrawal_fee'];
@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $settings = [];
-$rows = $db->query("SELECT key, value FROM settings")->fetchAll();
+$rows = $db->query("SELECT `key`, value FROM settings")->fetchAll();
 foreach ($rows as $r) $settings[$r['key']] = $r['value'];
 ?>
 <?php renderAdminHead('Paramètres'); ?>
